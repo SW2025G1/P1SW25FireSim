@@ -3,7 +3,7 @@
 #include <math.h>
 #include "example_library.h"
 //definere til en konstant symbol for at sikre at der er lige mange tækker og kolonner. Så programmet ved, hvornår den skal hoppe videre til næste celle
-#define SIZE_OF_MAP 3
+#define SIZE_OF_MAP 9
 
 //definiere symbolske konstanter
     //timestep til beregning
@@ -17,11 +17,12 @@
             //Vinkelgrader - radianer, vinkel fra nord
         //fugtighed i brænsel (på sigt kunne dette være i fil. så det er pr. celle)
 
-
 //Vi laver en struct som indlæser paramtrene fra filen som er hhv:
     //Topografi : elevation (double)
     //Skovtyper (en string med én type, alle samme værdier - en anden med den anden type) ID for brændseltypen
     //Status (en værdi som representere om cellen: ikke brænder,, brænder eller er udbrændt)
+//map struct med size of map og arrayet indeholdt
+
 struct cell_t {
     double topography;
     char fuel[4];
@@ -43,14 +44,14 @@ int main(void) {
             //tager det antal data felter der skal være i sctructen og læser ind (fscanf?) på de rigtige felter i cellens struct
         //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     FILE *fptr;
-    fptr = fopen("/Users/xenialindegren/CLionProjects/P1SW25FireSim/src/Data.txt", "r");
+    fptr = fopen("src/Data.txt", "r");
 
     //tilføjer tjek for, at se om filen åbnes korrekt
     if (fptr == NULL) {
         printf("Filen blev ikke åbnet korrekt\n");
         return 1;
     }
-
+//indlæs size of map fra starten af datafilen til en variabel
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             fscanf(fptr, "%lf", &map[i][j].topography);
@@ -67,22 +68,21 @@ int main(void) {
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
            if (map[i][j].status < 1) {
-               printf("^");
+               printf(".  ");
            } else {
-               printf("F");
+               printf("F  ");
            }
         }
         printf("\n");
     }
 
     //Denne del af koden beholdes til de-buggin print
-    /*for (int i = 0; i < SIZE_OF_MAP; i++) {
+    for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
-            printf("Celle [%d][%d] has the values: topography: %.2lf, fuel: %s, status: %.2lf ", i, j, map[i][j].topography, map[i][j].fuel, map[i][j].status);
+            printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j, map[i][j].topography, map[i][j].fuel, map[i][j].status);
         }
         printf("\n");
     }
-    */
 
     //mulig anden funktion
         //swich hvis status er n er den ikke i brænd osv.
@@ -102,10 +102,7 @@ int main(void) {
 
     
         //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
-        
-
-}
-
+        }
 //sidekommentar:
 
 //kortfilden
