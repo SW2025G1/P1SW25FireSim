@@ -43,7 +43,7 @@ int main(void) {
             //tager det antal data felter der skal være i sctructen og læser ind (fscanf?) på de rigtige felter i cellens struct
         //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     FILE *fptr;
-    fptr = fopen("/Users/xenialindegren/CLionProjects/P1SW25FireSim/src/Data.txt", "r");
+    fptr = fopen("src/Data.txt", "r");
 
     //tilføjer tjek for, at se om filen åbnes korrekt
     if (fptr == NULL) {
