@@ -1,5 +1,5 @@
 #include "mtest.h"
-#include "example_library.h"
+#include "functions.h"
 
 // Write test cases like this:
 TEST_CASE(example_pass, {

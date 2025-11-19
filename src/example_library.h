@@ -1,3 +1,0 @@
-
-// Prototype for example function
-

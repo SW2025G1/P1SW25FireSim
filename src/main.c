@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "example_library.h"
+#include "functions.h"
 //definere til en konstant symbol for at sikre at der er lige mange tækker og kolonner. Så programmet ved, hvornår den skal hoppe videre til næste celle
-#define SIZE_OF_MAP 9
 
 //definiere symbolske konstanter
     //timestep til beregning
@@ -31,11 +30,14 @@ struct cell_t {
 
 typedef struct cell_t cell_t;
 
-int main(void) {
 
+
+int main(void) {
+    char* file_path = get_file_path_from_user();
+    FILE* input_file = open_data(file_path);
     //Initialisere vores array ved brug af struct. Vi sætter SIZE_OF_MAP * SIZE_OF_MAP for, at få 2D array grid
       // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
-    cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
+    //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
         //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
@@ -43,14 +45,6 @@ int main(void) {
         //2. for loop
             //tager det antal data felter der skal være i sctructen og læser ind (fscanf?) på de rigtige felter i cellens struct
         //3. Gentages for alle cellerne og loopet slutter - filen lukkes
-    FILE *fptr;
-    fptr = fopen("src/Data.txt", "r");
-
-    //tilføjer tjek for, at se om filen åbnes korrekt
-    if (fptr == NULL) {
-        printf("Filen blev ikke åbnet korrekt\n");
-        return 1;
-    }
 //indlæs size of map fra starten af datafilen til en variabel
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
@@ -103,6 +97,7 @@ int main(void) {
     
         //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
         }
+
 //sidekommentar:
 
 //kortfilden
