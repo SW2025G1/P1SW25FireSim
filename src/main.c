@@ -22,21 +22,28 @@
     //Status (en værdi som representere om cellen: ikke brænder,, brænder eller er udbrændt)
 //map struct med size of map og arrayet indeholdt
 
-struct cell_t {
+typedef struct cell_t {
     double topography;
     char fuel[4];
     double status;
-};
+} cell_t;
 
-typedef struct cell_t cell_t;
+typedef struct array_t {
+    int size_of_array;
+    cell_t *map;
+} array_t;
 
 
+int main(void) {
+    char* file_path = get_file_path_from_user(); //Bruger input for filstien til datafilen
+    FILE* input_file = open_data(file_path);     //Åbn datafilen fra filstien i read mode
+    array_t array;                               //Erklær en variabel struct af datastrukturen
+    get_size_of_map(array);                      //Opdater array.size_of_map fra datafilens værdi for størrelsen
+    initialize_array_to_size(array);
+    get_data_from_file(array);
+    print_grid(array);
+    sim_loop(array);
 
-int main(void)
-{
-    //Vi kan eventuelt samle det hele i functions og lave en funktion, der kalder de andre funktioner, så vi kun har en funktion i main?
-    char* file_path = get_file_path_from_user();
-    FILE* input_file = open_data(file_path);
     //sidekommentar:
     //kortfilden
     //ilden starter altid fra centrum af kort - spørger ikke brugeren men sættes som standard

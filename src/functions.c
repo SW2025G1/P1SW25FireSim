@@ -43,6 +43,7 @@ FILE* get_data_from_file(FILE *fptr) {
     //tager det antal data felter der skal være i sctructen og læser ind (fscanf?) på de rigtige felter i cellens struct
     //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     //indlæs size of map fra starten af datafilen til en variabel
+    fscanf(fptr, "%*[^\n]\n");
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             fscanf(fptr, "%lf", &map[i][j].topography);
@@ -60,6 +61,7 @@ void print_grid(size_of_grid, struct* array)
     //1. for loop (ydre) til at printe linjerne (den bliver ved med at printe til der ikke er flere rækker (size_of_grid))
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
+
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             if (map[i][j].status < 1) {
