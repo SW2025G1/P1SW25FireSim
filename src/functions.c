@@ -41,7 +41,11 @@ int get_size_of_map(FILE *fptr){
  * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
  */
 void initialize_array(array_t* array) {
-    array->map = malloc(sizeof)
+    array->map = malloc(sizeof(cell_t) * (array->size_of_array * array->size_of_array));
+    if (array->map == NULL) {
+        printf("Memory error with allocating! exiting now :(");
+        exit (EXIT_FAILURE);
+    }
 }
 FILE* get_data_from_file(FILE *fptr) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
@@ -99,21 +103,4 @@ double burned_value(){
     //tager imod en pointer til arrayet og retunere en char (nok en swich)
     //den kaldes ind i print_kort funktionen
 }
-
-sim_loop()
-{
-
-    //ind i simulationsloopet - køres (ydre loop)
-    //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
-
-    //Det indre loop
-    //Udregning pr. celle om cellen er gået i brand - ny status
-    //akummulere en status for hver beregning cyklus - skal bygge op til ny antendelse i næste kørsel af loop
-    //skal opdatere med naboernes spredningsratio i visse timesteps
-    //skal opdatere med mindre interval end brugeren har inputtet - da brænden speder sig hurtigere end én celle pr. time osv.
-    //vi sætter fast værdi (senere opdatering: skal også her opdatere timesteppets størrelse)
-
-//Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
-}
-// Implementation of example function
 

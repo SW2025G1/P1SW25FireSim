@@ -1,7 +1,8 @@
 
 // Prototype for example function
-#ifndef functions.h
-#define functions.h
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
+#define MAX_FORECAST_HOURS 72
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -16,7 +17,11 @@ typedef struct array_t {
     cell_t *map;
 } array_t;
 
-
+typedef struct global_params_t {
+    double wind_speed_forecast[MAX_FORECAST_HOURS];
+    double wind_direction_forecast[MAX_FORECAST_HOURS];
+    double moisture_of_fuel;
+}global_params_t;
 
 FILE* open_data(char* file_name);
 char* get_file_path_from_user();
