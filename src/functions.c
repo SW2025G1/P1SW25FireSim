@@ -35,6 +35,14 @@ int get_size_of_map(FILE *fptr){
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
     //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 }
+
+/**
+ * @brief initialize_array skal dynmaisk allokere hukommelse til arrayet af cell_t structs, på pladsen, hvor cell_t pointeren "map" peger på (i datastructet).
+ * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
+ */
+void initialize_array(array_t* array) {
+    array->map = malloc(sizeof)
+}
 FILE* get_data_from_file(FILE *fptr) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
@@ -54,7 +62,7 @@ FILE* get_data_from_file(FILE *fptr) {
         fclose(fptr);
     }
 }
-void print_grid(size_of_grid, struct* array)
+void print_grid(size_of_grid, array_t* array)
 {
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
@@ -62,7 +70,7 @@ void print_grid(size_of_grid, struct* array)
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
 
-    for (int i = 0; i < SIZE_OF_MAP; i++) {
+    for (int i = 0; i < array->size_of_array; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             if (map[i][j].status < 1) {
                 printf(".  ");
