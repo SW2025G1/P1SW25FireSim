@@ -25,8 +25,7 @@ int get_size_of_map(FILE *file){
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
     //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 }
-FILE* get_data_from_file(FILE *file, fptr) {
-    fptr = fopen("src/data_txt", "r");
+FILE* get_data_from_file(FILE *fptr) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
     //"r" betyder at den læser filen i read-mode og derfor ikke ændre i den
