@@ -16,7 +16,18 @@ FILE* open_data(char* file_name) {
 
 //TODO: Implement user data input of relative file path (src/"..."):
 char* get_file_path_from_user() {
-//jubi
+    char filsti[256]; //array
+    FILE *fptr; // File* bliver lavet her, så den kan være med i do while loopet.
+    do {
+        printf("Indtast filsti til map:");
+        scanf("%255s", filsti);
+
+        fptr = fopen(filsti, "r");
+        if (fptr == NULL) {
+            printf("Kunne ikke åbne filen: %s\n", filsti);
+        }
+    }
+    while (fptr == NULL);
 }
 
 
@@ -99,8 +110,8 @@ void print_grid(size_of_grid, array_t* array)
 double burned_value(){
     //mulig anden funktion
     //switch hvis status er n er den ikke i brænd osv.
-    //en funktion som tager værdien af cellens status fra arryet og oversætter til en repræsentation af celle-status (eks, n for ikke i brænd)
-    //tager imod en pointer til arrayet og retunere en char (nok en swich)
+    //en funktion som tager værdien af cellens status fra arrayet og oversætter til en repræsentation af celle-status (eks, n for ikke i brænd)
+    //tager imod en pointer til arrayet og retunere en char (nok en switch)
     //den kaldes ind i print_kort funktionen
 }
 
