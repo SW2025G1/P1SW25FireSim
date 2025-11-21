@@ -22,28 +22,18 @@
     //Status (en værdi som representere om cellen: ikke brænder,, brænder eller er udbrændt)
 //map struct med size of map og arrayet indeholdt
 
-typedef struct cell_t {
-    double topography;
-    char fuel[4];
-    double status;
-} cell_t;
-
-typedef struct array_t {
-    int size_of_array;
-    cell_t *map;
-} array_t;
-
-
 int main(void) {
     char* file_path = get_file_path_from_user(); //Bruger input for filstien til datafilen
     FILE* input_file = open_data(file_path);     //Åbn datafilen fra filstien i read mode
     array_t array;                               //Erklær en variabel struct af datastrukturen
-    get_size_of_map(array);                      //Opdater array.size_of_map fra datafilens værdi for størrelsen
-    initialize_array_to_size(array);
-    get_data_from_file(array);
-    print_grid(array);
-    sim_loop(array);
-
+    get_size_of_map(input_file, &array);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
+    initialize_array(&array);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
+    get_data_from_file(input_file, &array);      //Initialiserer celler i map til værdierne fra datafilen
+    sim_loop(&array);                            //Kører simulationsdelen af programmet, som i et loop tager input for
+                                                 //simulationsvarighed, simulerer spredning af ild
+                                                 //og printer mappet af cellers status (brand eller ingen brand)
+    free_memory(&array);
+    return EXIT_SUCCESS;
     //sidekommentar:
     //kortfilden
     //ilden starter altid fra centrum af kort - spørger ikke brugeren men sættes som standard
