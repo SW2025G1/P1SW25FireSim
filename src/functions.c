@@ -16,16 +16,26 @@ FILE* open_data(char* file_name) {
 
 //TODO: Implement user data input of relative file path (src/"..."):
 char* get_file_path_from_user() {
-
+//jubi
 }
 
-int get_size_of_map(FILE *file){
+
+int get_size_of_map(FILE *fptr){
+    int size;
+    if (fscanf(fptr, "%d", &size) != 1) {
+        printf("Error\n");
+
+        exit(EXIT_FAILURE);
+
+    }
+    printf("Size of map:%dx%d",size, size);
+    return size;
     // Lav en funktion der læser size of map fra data filen
     //Initialisere vores array ved brug af struct. Vi sætter SIZE_OF_MAP * SIZE_OF_MAP for, at få 2D array grid
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
     //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 }
-FILE* get_data_from_file(FILE *file, fptr) {
+FILE* get_data_from_file(FILE *fptr) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
     //"r" betyder at den læser filen i read-mode og derfor ikke ændre i den
@@ -54,8 +64,10 @@ void print_grid(size_of_grid, struct* array)
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             if (map[i][j].status < 1) {
                 printf(".  ");
-            } else {
-                printf("F  ");
+            } else if (map[i][j].status >3){
+                printf("B  ");
+            }else {
+                printf("F ");
             }
         }
         printf("\n");
