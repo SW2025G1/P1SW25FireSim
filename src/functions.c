@@ -26,6 +26,7 @@ int get_size_of_map(FILE *file){
     //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 }
 FILE* get_data_from_file(FILE *file, fptr) {
+    fptr = fopen("src/data_txt", "r");
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
     //"r" betyder at den læser filen i read-mode og derfor ikke ændre i den
@@ -34,6 +35,7 @@ FILE* get_data_from_file(FILE *file, fptr) {
     //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     //indlæs size of map fra starten af datafilen til en variabel
     for (int i = 0; i < SIZE_OF_MAP; i++) {
+        fscanf(fptr, "%*[^\n]\n");
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             fscanf(fptr, "%lf", &map[i][j].topography);
             fscanf(fptr, "%3s", map[i][j].fuel);
@@ -50,6 +52,7 @@ void print_grid(size_of_grid, struct* array)
     //1. for loop (ydre) til at printe linjerne (den bliver ved med at printe til der ikke er flere rækker (size_of_grid))
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
+
     for (int i = 0; i < SIZE_OF_MAP; i++) {
         for (int j = 0; j < SIZE_OF_MAP; j++) {
             if (map[i][j].status < 1) {
