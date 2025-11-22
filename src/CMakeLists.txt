@@ -7,4 +7,6 @@ target_link_libraries(example_library m)  # Link the math library, in case you n
 add_executable(main main.c
         simulation.c
         simulation.h)
+
+add_executable(functions functions.c)
 target_link_libraries(main example_library)

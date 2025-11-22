@@ -41,9 +41,9 @@ int get_size_of_map(FILE *fptr){
  * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
  */
 void initialize_array(array_t* array) {
-    array->map = malloc(sizeof)
+    array->map = malloc(size_of_map);
 }
-FILE* get_data_from_file(FILE *fptr) {
+FILE* get_data_from_file(FILE *fptr, cell_t *array, int size_of_map) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
     //"r" betyder at den læser filen i read-mode og derfor ikke ændre i den
@@ -52,29 +52,30 @@ FILE* get_data_from_file(FILE *fptr) {
     //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     //indlæs size of map fra starten af datafilen til en variabel
     fscanf(fptr, "%*[^\n]\n");
-    for (int i = 0; i < SIZE_OF_MAP; i++) {
-        for (int j = 0; j < SIZE_OF_MAP; j++) {
-            fscanf(fptr, "%lf", &map[i][j].topography);
-            fscanf(fptr, "%3s", map[i][j].fuel);
-            fscanf(fptr, "%lf", &map[i][j].status);
+    for (int i = 0; i < size_of_map; i++) {
+        for (int j = 0; j < size_of_map; j++) {
+            fscanf(fptr, "%lf", &array[i * size_of_map + j].topography);
+            fscanf(fptr, "%3s",  array[i * size_of_map + j].fuel);
+            fscanf(fptr, "%lf", &array[i * size_of_map + j].status);
+
         }
 
         fclose(fptr);
     }
 }
-void print_grid(size_of_grid, array_t* array)
-{
+void print_grid(int size_of_map, cell_t* array){
+
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
     //1. for loop (ydre) til at printe linjerne (den bliver ved med at printe til der ikke er flere rækker (size_of_grid))
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
 
-    for (int i = 0; i < array->size_of_array; i++) {
-        for (int j = 0; j < SIZE_OF_MAP; j++) {
-            if (map[i][j].status < 1) {
+    for (int i = 0; i < size_of_map; i++) {
+        for (int j = 0; j < size_of_map; j++) {
+            if (array->status < 1) {
                 printf(".  ");
-            } else if (map[i][j].status >3){
+            } else if (array->status >3){
                 printf("B  ");
             }else {
                 printf("F ");
@@ -84,8 +85,8 @@ void print_grid(size_of_grid, array_t* array)
     }
 
     //Denne del af koden beholdes til de-buggin print
-    for (int i = 0; i < SIZE_OF_MAP; i++) {
-        for (int j = 0; j < SIZE_OF_MAP; j++) {
+    for (int i = 0; i < size_of_map; i++) {
+        for (int j = 0; j < size_of_map; j++) {
             printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j, map[i][j].topography, map[i][j].fuel, map[i][j].status);
         }
         printf("\n");
