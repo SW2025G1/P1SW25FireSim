@@ -115,3 +115,29 @@ void free_memory(array_t* array) {
     printf("Freeing memory\n");
     free(array->map);
 }
+// Implementation of example function
+
+
+//tage imod vind, vejr, .. fra bruger - printf, scanf
+Weather weather_input_from_user() {
+    Weather w;
+
+    printf("Enter weather conditions\n");
+    printf("Temperature: ");
+    scanf(" %lf", &w.temperature);
+    printf("Air humidity: ");
+    scanf(" %lf", &w.air_humidity);
+    printf("Wind speed: ");
+    scanf(" %lf", &w.wind_speed);
+    printf("Wind direction: ");
+    scanf(" %19s", w.wind_direction); //%19s - betyder plads til to bogstaver i string
+
+    printf("The entered weather conditions\n");
+    printf("Temperature: %.2lf\n", w.temperature);
+    printf("Air humidity: %.2lf\n", w.air_humidity);
+    printf("Wind speed: %.19lf\n", w.wind_speed);
+    printf("Wind direction: %s\n", w.wind_direction);
+
+    return w;
+}
+

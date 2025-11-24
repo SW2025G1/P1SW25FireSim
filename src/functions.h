@@ -24,6 +24,13 @@ typedef struct global_params_t {
     double moisture_of_fuel;
 }global_params_t;
 
+typedef struct {
+    double temperature;
+    double air_humidity;
+    double wind_speed;
+    char wind_direction[20];
+} Weather;
+
 FILE* open_data(char* file_name);
 char* get_file_path_from_user();
 void initialize_array(array_t* array);
