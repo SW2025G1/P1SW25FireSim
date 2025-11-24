@@ -1,9 +1,23 @@
-/*
 #include "simulation.h"
 #include "functions.h"
+#define TIME_STEP 5
 
-void sim_loop(array_t* array)
-{
+void sim_loop(array_t* array, Weather* w) {
+    char input_char = 'y';
+    int input_time = 0;
+    do {
+        input_time_or_exit(&input_char, &input_time);
+
+        for (int i = TIME_STEP; i < input_time; i += TIME_STEP) {
+            for (int j = 0; j < array->size_of_array; j++) {
+                for (int k = 0; k < array->size_of_array; k++) {
+                    calculate_new_status(array, w, i, j, k);
+                }
+            }
+        }
+
+        print_grid(array);
+    } while (input_char != 'x');
 
     //ind i simulationsloopet - køres (ydre loop)
     //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
@@ -16,4 +30,4 @@ void sim_loop(array_t* array)
     //vi sætter fast værdi (senere opdatering: skal også her opdatere timesteppets størrelse)
 
     //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
-}*///commented out for now
+}

@@ -37,7 +37,7 @@ int main() {
 
     //global_params_t global_params;
     //fortæl bruger at det nu er globale parametre filen de skal skrive filstien til
-    //sim_loop(&array, &global_params);          //Kører simulationsdelen af programmet, som i et loop tager input for
+    //sim_loop(&array, &w);                        //Kører simulationsdelen af programmet, som i et loop tager input for
                                                  //simulationsvarighed, simulerer spredning af ild
                                                  //og printer mappet af cellers status (brand eller ingen brand)
     free_memory(&array);
