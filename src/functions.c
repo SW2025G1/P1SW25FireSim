@@ -29,7 +29,6 @@ char* get_file_path_from_user() {
     }
     while (fptr == NULL);
 }
-}
 
 
 int get_size_of_map(FILE *fptr){
@@ -53,7 +52,11 @@ int get_size_of_map(FILE *fptr){
  * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
  */
 void initialize_array(array_t* array) {
-    array->map = malloc(size_of_map);
+    array->map = malloc(sizeof(cell_t) * (array->size_of_array * array->size_of_array));
+    if (array->map == NULL) {
+        printf("Memory error with allocating! exiting now :(");
+        exit (EXIT_FAILURE);
+    }
 }
 FILE* get_data_from_file(FILE *fptr, cell_t *array, int size_of_map) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
@@ -75,7 +78,7 @@ FILE* get_data_from_file(FILE *fptr, cell_t *array, int size_of_map) {
         fclose(fptr);
     }
 }
-void print_grid(int size_of_map, cell_t* array){
+void print_grid(array_t* array){
 
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
@@ -83,11 +86,11 @@ void print_grid(int size_of_map, cell_t* array){
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
 
-    for (int i = 0; i < size_of_map; i++) {
-        for (int j = 0; j < size_of_map; j++) {
-            if (array->status < 1) {
+    for (int i = 0; i < array->size_of_array; i++) {
+        for (int j = 0; array->size_of_array; j++) {
+            if (array->map[i * array->size_of_array + j].status < 1) {
                 printf(".  ");
-            } else if (array->status >3){
+            } else if (array->map[i * array->size_of_array + j].status > 3){
                 printf("B  ");
             }else {
                 printf("F ");
