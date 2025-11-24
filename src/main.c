@@ -31,7 +31,7 @@ int main(void) {
     get_size_of_map(input_file, &array);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
     initialize_array(&array);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
     get_data_from_file(input_file, &array);      //Initialiserer celler i map til værdierne fra datafilen
-
+    weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
 
     global_params_t global_params;
     //fortæl bruger at det nu er globale parametre filen de skal skrive filstien til
