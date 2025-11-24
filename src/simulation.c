@@ -1,7 +1,4 @@
-//
-// Created by mathi on 21-11-2025.
-//
-
+/*
 #include "simulation.h"
 #include "functions.h"
 
@@ -19,4 +16,4 @@ void sim_loop(array_t* array)
     //vi sætter fast værdi (senere opdatering: skal også her opdatere timesteppets størrelse)
 
     //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
-}
+}*///commented out for now

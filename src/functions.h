@@ -3,6 +3,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 #define MAX_FORECAST_HOURS 72
+#define MAX_MAP_SIZE 50
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -26,4 +27,8 @@ typedef struct global_params_t {
 FILE* open_data(char* file_name);
 char* get_file_path_from_user();
 void initialize_array(array_t* array);
+void get_size_of_map(FILE *fptr, array_t* array);
+void get_data_from_file(FILE *fptr, array_t* array);
+void print_grid(array_t* array);
+void free_memory(array_t* array);
 #endif
