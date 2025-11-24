@@ -55,6 +55,7 @@ void initialize_array(array_t* array) {
         exit (EXIT_FAILURE);
     }
 }
+
 void get_data_from_file(FILE *fptr, array_t* array) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
@@ -73,18 +74,7 @@ void get_data_from_file(FILE *fptr, array_t* array) {
     fclose(fptr);
 }
 void print_grid(array_t* array){
-
-    //Denne del af koden beholdes til de-buggin print
-    for (int i = 0; i < array->size_of_array; i++) {
-        printf("\n");
-        for (int j = 0; j < array->size_of_array; j++) {
-            printf("kommet hertil\n");
-            printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
-                array->map[i * array->size_of_array + j].topography,
-                array->map[i * array->size_of_array + j].fuel,
-                array->map[i * array->size_of_array + j].status);
-        }
-    }
+    //debug_print(array); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
@@ -93,7 +83,7 @@ void print_grid(array_t* array){
     //2. status for hvor lang tid der er gået
 
     for (int i = 0; i < array->size_of_array; i++) {
-        for (int j = 0; array->size_of_array; j++) {
+        for (int j = 0; j < array->size_of_array; j++) {
             if (array->map[i * array->size_of_array + j].status < 1) {
                 printf(".  ");
             }
@@ -135,9 +125,21 @@ Weather weather_input_from_user() {
     printf("The entered weather conditions\n");
     printf("Temperature: %.2lf\n", w.temperature);
     printf("Air humidity: %.2lf\n", w.air_humidity);
-    printf("Wind speed: %.19lf\n", w.wind_speed);
+    printf("Wind speed: %.2lf\n", w.wind_speed);
     printf("Wind direction: %s\n", w.wind_direction);
 
     return w;
 }
 
+void debug_print(array_t* array) {
+    for (int i = 0; i < array->size_of_array; i++) {
+        printf("\n");
+        for (int j = 0; j < array->size_of_array; j++) {
+            printf("kommet hertil\n");
+            printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
+                array->map[i * array->size_of_array + j].topography,
+                array->map[i * array->size_of_array + j].fuel,
+                array->map[i * array->size_of_array + j].status);
+        }
+    }
+}

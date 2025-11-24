@@ -29,12 +29,13 @@ int main() {
     FILE* input_file = open_data(file_path);     //Åbn datafilen fra filstien i read mode
     array_t array;                               //Erklær en variabel struct af datastrukturen
     get_size_of_map(input_file, &array);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
+    Weather w = weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
     initialize_array(&array);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
     get_data_from_file(input_file, &array);      //Initialiserer celler i map til værdierne fra datafilen
     print_grid(&array);
-    //weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
 
-    global_params_t global_params;
+
+    //global_params_t global_params;
     //fortæl bruger at det nu er globale parametre filen de skal skrive filstien til
     //sim_loop(&array, &global_params);          //Kører simulationsdelen af programmet, som i et loop tager input for
                                                  //simulationsvarighed, simulerer spredning af ild

@@ -37,5 +37,7 @@ void initialize_array(array_t* array);
 void get_size_of_map(FILE *fptr, array_t* array);
 void get_data_from_file(FILE *fptr, array_t* array);
 void print_grid(array_t* array);
+void debug_print(array_t* array);
 void free_memory(array_t* array);
+Weather weather_input_from_user();
 #endif
