@@ -108,7 +108,7 @@ void print_grid(array_t* array){
     }
 }
 
-double burned_value(){
+double burned_value() {
     //mulig anden funktion
     //switch hvis status er n er den ikke i brænd osv.
     //en funktion som tager værdien af cellens status fra arryet og oversætter til en repræsentation af celle-status (eks, n for ikke i brænd)
@@ -132,4 +132,28 @@ sim_loop()
 //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
 }
 // Implementation of example function
+
+
+//tage imod vind, vejr, .. fra bruger - printf, scanf
+Weather weather_input_from_user() {
+    Weather w;
+
+    printf("Enter weather conditions\n");
+    printf("Temperature: ");
+    scanf(" %lf", &w.temperature);
+    printf("Air humidity: ");
+    scanf(" %lf", &w.air_humidity);
+    printf("Wind speed: ");
+    scanf(" %lf", &w.wind_speed);
+    printf("Wind direction: ");
+    scanf(" %19s", w.wind_direction); //%19s - betyder plads til to bogstaver i string
+
+    printf("The entered weather conditions\n");
+    printf("Temperature: %.2lf\n", w.temperature);
+    printf("Air humidity: %.2lf\n", w.air_humidity);
+    printf("Wind speed: %.19lf\n", w.wind_speed);
+    printf("Wind direction: %s\n", w.wind_direction);
+
+    return w;
+}
 
