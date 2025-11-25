@@ -1,5 +1,3 @@
-
-// Prototype for example function
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 #define MAX_FORECAST_HOURS 72
@@ -25,10 +23,9 @@ typedef struct global_params_t {
 }global_params_t;
 
 typedef struct {
-    double temperature;
-    double air_humidity;
+    double moisture_of_fuel;
     double wind_speed;
-    char wind_direction[20];
+    char wind_direction[20]; //skal laves om til double, fordi vi skal give bruger 8 valgmuligheder i stedet for selv at skrive northeast eller NW
 } Weather;
 
 FILE* open_data(char* file_name);

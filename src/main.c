@@ -3,6 +3,7 @@
 #include <math.h>
 #include "functions.h"
 #include "simulation.h"
+
 //definere til en konstant symbol for at sikre at der er lige mange tækker og kolonner. Så programmet ved, hvornår den skal hoppe videre til næste celle
 
 //definiere symbolske konstanter
