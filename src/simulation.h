@@ -2,6 +2,14 @@
 #define SIMULATION_H
 #include "functions.h"
 
+typedef struct TimberLitter1 {
+    double Pb = 24.975;
+    double effective_heating_number = 0.9227;
+    double Q_ig = 788.520;
+    double flux_ratio = 0.1174;
+    double reaction_intensety = 1.500;
+} TimberLitter1;
+
 void sim_loop(array_t* array, Weather* w);
 void calculate_new_status(array_t* array, Weather* w, int i, int j, int k);
 void input_time_or_exit(char* input_char, int* input_time);

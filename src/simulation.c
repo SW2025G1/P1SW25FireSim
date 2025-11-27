@@ -57,10 +57,24 @@ double rate_of_spread(array_t* array, Weather* w, int i, int j, int k) {
     return TIME_STEP / ignition_time;
 }
 
-double calculate_base_rate(char* fuel_model, double moisture_of_fuel) {
+double calculate_base_rate(array_t *array, char* fuel_model, double moisture_of_fuel, int i, int j) {
     //tage base rate - funktionen skal bruge fuel model id og moisture fra weather
+    double extinction_moisture_TL1 = 0.30;
+    double extinction_moisture_TU1 = 0.20;
 
-    //return ;
+    if (array->map[i * array->size_of_array + j].fuel == TL1) {
+        //regne Timber Litter
+        
+        //R_0 = R_0, base (-1 ( / );
+        return R_0;
+
+    } else if (array->map[i * array->size_of_array + j].fuel == TU1) {
+        //regne Timber Understory
+
+        //R_0 = R_0, base (-1 ( / );
+        return R_0;
+    }
+
 }
 
 double calculate_wind_factor(int k, double wind_speed, double wind_direction) {
