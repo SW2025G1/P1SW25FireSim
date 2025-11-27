@@ -23,11 +23,12 @@ char* get_file_path_from_user() {
         scanf("%255s", filsti);
 
         fptr = fopen(filsti, "r");
+        //tilføjer tjek for, at se om filen åbnes korrekt
         if (fptr == NULL) {
-            printf("Kunne ikke åbne filen: %s\n", filsti);
+            printf("filen %s blev ikke åbnet korrekt\n", filsti);
         }
-    }
-    while (fptr == NULL);
+    } while (fptr == NULL);
+    return fptr;
 }
 
 
@@ -125,18 +126,18 @@ Weather weather_input_from_user() {
     printf("Wind speed: %.2lf\n", w.wind_speed);
     printf("Wind direction: %s\n", w.wind_direction);
 
-    return w;
-}
+        return w;
+    }
 
-void debug_print(array_t* array) {
-    for (int i = 0; i < array->size_of_array; i++) {
-        printf("\n");
-        for (int j = 0; j < array->size_of_array; j++) {
-            printf("kommet hertil\n");
-            printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
-                array->map[i * array->size_of_array + j].topography,
-                array->map[i * array->size_of_array + j].fuel,
-                array->map[i * array->size_of_array + j].status);
+    void debug_print(array_t* array) {
+        for (int i = 0; i < array->size_of_array; i++) {
+            printf("\n");
+            for (int j = 0; j < array->size_of_array; j++) {
+                printf("kommet hertil\n");
+                printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
+                    array->map[i * array->size_of_array + j].topography,
+                    array->map[i * array->size_of_array + j].fuel,
+                    array->map[i * array->size_of_array + j].status);
+            }
         }
     }
-}
