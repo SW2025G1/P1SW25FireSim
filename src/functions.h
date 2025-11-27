@@ -25,7 +25,7 @@ typedef struct global_params_t {
 typedef struct {
     double moisture_of_fuel;
     double wind_speed;
-    char wind_direction[20]; //skal laves om til double, fordi vi skal give bruger 8 valgmuligheder i stedet for selv at skrive northeast eller NW
+    char wind_direction[20]; //skal laves om til int, fordi vi skal give bruger 8 valgmuligheder i stedet for selv at skrive northeast eller NW
 } Weather;
 
 FILE* open_data(char* file_name);
