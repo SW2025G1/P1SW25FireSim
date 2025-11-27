@@ -79,13 +79,15 @@ double calculate_wind_direction(int wind_direction) {
 }
 
 double calculate_wind_factor(int k, double wind_speed, int wind_direction) {
-    double wind_factor = 0;
+    double wind_factor;
     double C_wind = 0.20;
     double theta_i = 0; //skal ændres
 
     double new_wind_direction = calculate_wind_direction(wind_direction);
 
-    wind_factor = C_wind * wind_speed * max(0, cos(new_wind_direction - theta_i));
+    wind_factor = C_wind * wind_speed * fmax(0, cos(new_wind_direction - theta_i));
+
+    return wind_factor;
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
     //den faktiske vindretning
