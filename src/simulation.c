@@ -64,14 +64,14 @@ double calculate_base_rate(array_t *array, char* fuel_model, double moisture_of_
 
     if (array->map[i * array->size_of_array + j].fuel == TL1) {
         //regne Timber Litter
-        
+
         //R_0 = R_0, base (-1 ( / );
         return R_0;
 
     } else if (array->map[i * array->size_of_array + j].fuel == TU1) {
         //regne Timber Understory
 
-        //R_0 = R_0, base (-1 ( / );
+        //R_0 = R_0, base (-1 ( / )
         return R_0;
     }
 

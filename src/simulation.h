@@ -7,7 +7,7 @@ typedef struct TimberLitter1 {
     double effective_heating_number = 0.9227;
     double Q_ig = 788.520;
     double flux_ratio = 0.1174;
-    double reaction_intensety = 1.500;
+    double reaction_intenset = 1.500;
 } TimberLitter1;
 
 void sim_loop(array_t* array, Weather* w);
