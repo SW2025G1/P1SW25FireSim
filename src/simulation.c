@@ -77,7 +77,31 @@ double calculate_base_rate(array_t *array, char* fuel_model, double moisture_of_
 
 }
 
-double calculate_wind_factor(int k, double wind_speed, double wind_direction) {
+double calculate_wind_direction(int wind_direction) {
+    //omdan userinput: wind_direction til vinkel i radianer
+        switch (wind_direction) {
+            case 1: return M_PI/2;        // nord
+            case 2: return M_PI/4;        // nordøst
+            case 3: return 0;             // øst
+            case 4: return -M_PI/4;       // sydøst
+            case 5: return -M_PI/2;       // syd
+            case 6: return -3*M_PI/4;     // sydvest
+            case 7: return M_PI;          // vest
+            case 8: return 3*M_PI/4;      // nordvest
+            default: return 0;            // fallback
+        }
+}
+
+double calculate_wind_factor(int k, double wind_speed, int wind_direction) {
+    double wind_factor;
+    double C_wind = 0.20;
+    double theta_i = 0; //skal ændres
+
+    double new_wind_direction = calculate_wind_direction(wind_direction);
+
+    wind_factor = C_wind * wind_speed * fmax(0, cos(new_wind_direction - theta_i));
+
+    return wind_factor;
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
     //den faktiske vindretning
