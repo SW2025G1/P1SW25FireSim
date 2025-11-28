@@ -29,6 +29,7 @@ double direction_to_radians(int wind_direction);
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t direction_from_neighbor);
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j);
 double calculate_slope_factor(map_t* map, int i, int j, direction_t direction_from_neighbor);
+double get_slope_scaling_for_fuel_model(map_t* map, int i, int j);
 double get_neighbour_elevation(map_t* map, int i, int j, direction_t direction_from_neighbor);
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor);
 

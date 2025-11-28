@@ -67,7 +67,7 @@ void get_data_from_file(FILE *fptr, map_t* map) {
     initial_burning_cell(map);
 }
 void print_grid(map_t* map){
-    //debug_print(array); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
+    debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
@@ -118,8 +118,10 @@ Weather_t weather_input_from_user() {
     printf("Air humidity: %.2lf\n", w.moisture_of_fuel);
     printf("Wind speed: %.2lf\n", w.wind_speed);
     printf("Wind directions: 1 (N)  2 (NE)  3 (E)  4 (SE)  5 (S)  6 (SW)  7 (W)  8 (NW)\n");
-    printf("Wind direction: %s\n", w.wind_direction);
+    printf("Wind direction: %d\n", w.wind_direction);
 
+    w.wind_direction_radians = w.wind_direction * (M_PI / 4); //These enum types match the actual radians conversions
+    //by this operation. We will need the direction in radians for some calculations.
         return w;
     }
 

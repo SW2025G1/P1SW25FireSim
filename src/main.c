@@ -32,12 +32,10 @@ int main() {
     Weather_t w = weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
     initialize_map(&map);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
     get_data_from_file(file, &map);      //Initialiserer celler i map til værdierne fra datafilen
+
     print_grid(&map);
 
-
-    //global_params_t global_params;
-    //fortæl bruger at det nu er globale parametre filen de skal skrive filstien til
-    //sim_loop(&array, &w);                        //Kører simulationsdelen af programmet, som i et loop tager input for
+    sim_loop(&map, &w);                        //Kører simulationsdelen af programmet, som i et loop tager input for
                                                  //simulationsvarighed, simulerer spredning af ild
                                                  //og printer mappet af cellers status (brand eller ingen brand)
     free_memory(&map);
