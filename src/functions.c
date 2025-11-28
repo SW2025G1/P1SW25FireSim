@@ -1,21 +1,6 @@
 #include <math.h>
 #include "functions.h"
-
-
-FILE* open_data(char* file_name) {
-    FILE *fptr;
-    fptr = fopen("src/data_txt", "r");
-    //tilføjer tjek for, at se om filen åbnes korrekt
-    if (fptr == NULL) {
-        printf("Filen blev ikke åbnet korrekt\n");
-        exit(EXIT_FAILURE);
-    }
-    return fptr;
-}
-
-
-//TODO: Implement user data input of relative file path (src/"..."):
-char* get_file_path_from_user() {
+FILE* get_file_path_from_user() {
     char filsti[256]; //array hvor man skriver filnavnet
     FILE *fptr; // File* bliver lavet her, så den kan være med i do while loopet.
     do {
@@ -32,13 +17,13 @@ char* get_file_path_from_user() {
 }
 
 
-void get_size_of_map(FILE *fptr, array_t* array) {
-    fscanf(fptr, "%d", &array->size_of_array);
-    if (array->size_of_array < 1 || array->size_of_array > MAX_MAP_SIZE) {
+void get_size_of_map(FILE *fptr, map_t* map) {
+    fscanf(fptr, "%d", &map->size_of_map);
+    if (map->size_of_map < 1 || map->size_of_map > MAX_MAP_SIZE) {
         printf("Error\n");
         exit(EXIT_FAILURE);
     }
-    printf("Size of map was assigned to grid of:%d x %d cells\n",array->size_of_array, array->size_of_array);
+    printf("Size of map was assigned to grid of:%d x %d cells\n",map->size_of_map, map->size_of_map);
     // Lav en funktion der læser size of map fra data filen
     //Initialisere vores array ved brug af struct. Vi sætter SIZE_OF_MAP * SIZE_OF_MAP for, at få 2D array grid
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
@@ -47,17 +32,23 @@ void get_size_of_map(FILE *fptr, array_t* array) {
 
 /**
  * @brief initialize_array skal dynmaisk allokere hukommelse til arrayet af cell_t structs, på pladsen, hvor cell_t pointeren "map" peger på (i datastructet).
+ * @param map
  * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
  */
-void initialize_array(array_t* array) {
-    array->map = malloc(sizeof(cell_t) * (array->size_of_array * array->size_of_array));
-    if (array->map == NULL) {
+void initialize_map(map_t* map) {
+    map->map = malloc(sizeof(cell_t) * (map->size_of_map * map->size_of_map));
+    if (map->map == NULL) {
         printf("Memory error with allocating! exiting now :(");
         exit (EXIT_FAILURE);
     }
 }
+void initial_burning_cell(map_t* map) {
+    int i = map->size_of_map / 2;
+    int j = i;
+    map->map[i * map->size_of_map + j].status = 1.0;
+}
 
-void get_data_from_file(FILE *fptr, array_t* array) {
+void get_data_from_file(FILE *fptr, map_t* map) {
     //tag noget data ind for kortet/det geografiske område  - topografien (linear binary search)
     //1. åbne fil (filnavn) indholdene: tekstfil, med datafelter for hver celle
     //"r" betyder at den læser filen i read-mode og derfor ikke ændre i den
@@ -65,16 +56,17 @@ void get_data_from_file(FILE *fptr, array_t* array) {
     //tager det antal data felter der skal være i sctructen og læser ind (fscanf?) på de rigtige felter i cellens struct
     //3. Gentages for alle cellerne og loopet slutter - filen lukkes
     //indlæs size of map fra starten af datafilen til en variabel
-    for (int i = 0; i < array->size_of_array; i++) {
-        for (int j = 0; j < array->size_of_array; j++) {
-            fscanf(fptr, " %lf", &array->map[i * array->size_of_array + j].topography);
-            fscanf(fptr, " %3s",  array->map[i * array->size_of_array + j].fuel);
-            fscanf(fptr, " %lf", &array->map[i * array->size_of_array + j].status);
+    for (int i = 0; i < map->size_of_map; i++) {
+        for (int j = 0; j < map->size_of_map; j++) {
+            fscanf(fptr, " %lf", &map->map[i * map->size_of_map + j].topography);
+            fscanf(fptr, " %3s",  map->map[i * map->size_of_map + j].fuel);
+            fscanf(fptr, " %lf", &map->map[i * map->size_of_map + j].status);
         }
     }
     fclose(fptr);
+    initial_burning_cell(map);
 }
-void print_grid(array_t* array){
+void print_grid(map_t* map){
     //debug_print(array); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
     //Funktionen print_kort(size_of_grid, struct* array)
@@ -83,61 +75,63 @@ void print_grid(array_t* array){
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
 
-    for (int i = 0; i < array->size_of_array; i++) {
-        for (int j = 0; j < array->size_of_array; j++) {
-            if (array->map[i * array->size_of_array + j].status < 1) {
+    for (int i = 0; i < map->size_of_map; i++) {
+        for (int j = 0; j < map->size_of_map; j++) {
+            if (map->map[i * map->size_of_map + j].status < 1) {
                 printf(".  ");
             }
-            else if (array->map[i * array->size_of_array + j].status > 3){
+            else if (map->map[i * map->size_of_map + j].status > 3){
                 printf("B  ");
             }
             else {
                 printf("F  ");
             }
         }
-        printf("\n");
+        printf("");
     }
     printf("Kommet hertil\n");
 
 
 }
 
-void free_memory(array_t* array) {
+void free_memory(map_t* map) {
     printf("Freeing memory\n");
-    free(array->map);
+    free(map->map);
 }
 // Implementation of example function
 
 
 //tage imod vind, vejr, .. fra bruger - printf, scanf
-Weather weather_input_from_user() {
-    Weather w;
+Weather_t weather_input_from_user() {
+    Weather_t w;
 
     printf("Enter weather conditions\n");
-    printf("Air humidity: ");
+    printf("Moisture of dead surface fuel: ");
     scanf(" %lf", &w.moisture_of_fuel);
     printf("Wind speed: ");
     scanf(" %lf", &w.wind_speed);
-    printf("Wind direction: ");
-    scanf(" %19s", w.wind_direction); //%19s - betyder plads til to bogstaver i string
+    printf("Wind directions: 1 (N)  2 (NE)  3 (E)  4 (SE)  5 (S)  6 (SW)  7 (W)  8 (NW)\n");
+    printf("Wind direction (m/s): ");
+    scanf(" %d", &w.wind_direction);
 
     printf("The entered weather conditions\n");
     printf("Air humidity: %.2lf\n", w.moisture_of_fuel);
     printf("Wind speed: %.2lf\n", w.wind_speed);
+    printf("Wind directions: 1 (N)  2 (NE)  3 (E)  4 (SE)  5 (S)  6 (SW)  7 (W)  8 (NW)\n");
     printf("Wind direction: %s\n", w.wind_direction);
 
         return w;
     }
 
-    void debug_print(array_t* array) {
-        for (int i = 0; i < array->size_of_array; i++) {
+    void debug_print(map_t* map) {
+        for (int i = 0; i < map->size_of_map; i++) {
             printf("\n");
-            for (int j = 0; j < array->size_of_array; j++) {
+            for (int j = 0; j < map->size_of_map; j++) {
                 printf("kommet hertil\n");
                 printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
-                    array->map[i * array->size_of_array + j].topography,
-                    array->map[i * array->size_of_array + j].fuel,
-                    array->map[i * array->size_of_array + j].status);
+                    map->map[i * map->size_of_map + j].topography,
+                    map->map[i * map->size_of_map + j].fuel,
+                    map->map[i * map->size_of_map + j].status);
             }
         }
     }

@@ -26,14 +26,13 @@
 
 int main() {
     //fortæl bruger at det nu er map data filen de skal skrive filstien til
-    char* file_path = get_file_path_from_user(); //Bruger input for filstien til datafilen
-    FILE* input_file = open_data(file_path);     //Åbn datafilen fra filstien i read mode
-    array_t array;                               //Erklær en variabel struct af datastrukturen
-    get_size_of_map(input_file, &array);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
-    Weather w = weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
-    initialize_array(&array);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
-    get_data_from_file(input_file, &array);      //Initialiserer celler i map til værdierne fra datafilen
-    print_grid(&array);
+    FILE* file = get_file_path_from_user(); //Bruger input for filstien til datafilen og åbner den i read mode
+    map_t map;                               //Erklær en variabel struct af datastrukturen
+    get_size_of_map(file, &map);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
+    Weather_t w = weather_input_from_user();                   //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
+    initialize_map(&map);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
+    get_data_from_file(file, &map);      //Initialiserer celler i map til værdierne fra datafilen
+    print_grid(&map);
 
 
     //global_params_t global_params;
@@ -41,7 +40,7 @@ int main() {
     //sim_loop(&array, &w);                        //Kører simulationsdelen af programmet, som i et loop tager input for
                                                  //simulationsvarighed, simulerer spredning af ild
                                                  //og printer mappet af cellers status (brand eller ingen brand)
-    free_memory(&array);
+    free_memory(&map);
     return EXIT_SUCCESS;
     //sidekommentar:
     //kortfilden
