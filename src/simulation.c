@@ -96,12 +96,17 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
 
     //if the neighbor cell to calculate spread from is not yet burning, no calculations should be done.
     if (get_neighbor_status(map, i, j, neighbor_direction.direction_from_neighbor_int) >= 1.0) {
+        double distance_between_centers = CELL_WIDTH;
+        if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {//TODO: this should be a function call, as it is reused in slope function
+            distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
+            //The actual distance from center of cell to center of cell is larger by the square root of two ratio
+        }
 
         double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction);
         double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
         double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
         double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
-        double ignition_time = CELL_WIDTH / total_spread_rate; //distance pr. rate - fx meter pr. min.
+        double ignition_time = distance_between_centers / total_spread_rate; //distance pr. rate - fx meter pr. min.
 
         status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
         return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step

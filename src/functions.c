@@ -1,5 +1,8 @@
 #include <math.h>
 #include "functions.h"
+
+#include "simulation.h"
+
 FILE* get_file_path_from_user() {
     char filsti[256]; //array hvor man skriver filnavnet
     FILE *fptr; // File* bliver lavet her, så den kan være med i do while loopet.
@@ -24,7 +27,9 @@ void get_size_of_map(FILE *fptr, map_t* map) {
         printf("Error\n");
         exit(EXIT_FAILURE);
     }
-    printf("Size of map was assigned to grid of:%d x %d cells\n",map->size_of_map, map->size_of_map);
+    printf("Size of map was assigned to grid of:%d x %d cells\n"
+           "This corresponds to an area of %d x %d meters",map->size_of_map, map->size_of_map,
+           CELL_WIDTH * map->size_of_map, CELL_WIDTH * map->size_of_map);
     // Lav en funktion der læser size of map fra data filen
     //Initialisere vores array ved brug af struct. Vi sætter SIZE_OF_MAP * SIZE_OF_MAP for, at få 2D array grid
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
@@ -63,9 +68,10 @@ void get_data_from_file(FILE *fptr, map_t* map) {
     //indlæs size of map fra starten af datafilen til en variabel
     for (int i = 0; i < map->size_of_map; i++) {
         for (int j = 0; j < map->size_of_map; j++) {
-            fscanf(fptr, " %lf", &map->map[i * map->size_of_map + j].topography);
-            fscanf(fptr, " %3s",  map->map[i * map->size_of_map + j].fuel);
-            fscanf(fptr, " %lf", &map->map[i * map->size_of_map + j].status);
+            fscanf(fptr, " %lf %3s %lf",
+                &map->map[i * map->size_of_map + j].topography,
+                map->map[i * map->size_of_map + j].fuel,
+                &map->map[i * map->size_of_map + j].status);
         }
     }
     fclose(fptr);

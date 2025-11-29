@@ -1,5 +1,4 @@
-36 //TODO: Make multiple data files of different scenarios. Name them cleverly. Remember to add the suggested inputs for them in the functions.c function
-
+36
 0.0 TL1 0.0
 0.0 TL1 0.0
 0.0 TL1 0.0
@@ -647,7 +646,7 @@
 0.0 TL1 0.0
 0.0 TL1 0.0
 0.0 TL1 0.0
-0.0 TL1 1.0
+0.0 TL1 0.0
 0.0 TL1 0.0
 0.0 TL1 0.0
 0.0 TL1 0.0
