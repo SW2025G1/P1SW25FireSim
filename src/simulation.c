@@ -4,25 +4,12 @@
 
 #include "functions.h"
 
-#define TIME_STEP 5
-#define DIRECTIONS_AMOUNT 8
-#define CELL_WIDTH 5
-#define SQRT_OF_2 1.41421356
-#define TL1_MOISTURE_EXTINCTION 0.30
-#define TL1_BASE_BASE_RATE 0.064
-#define TL1_WIND_SCALING_RATIO 0.15 //Dense fuel packing ratio means lesser wind scaling ratio than TU1
-#define TL1_SLOPE_SCALING_RATIO 0.05 //Dense fuel packing reatio means also lesser thermal penetration efficiency uphill
-#define TU1_MOISTURE_EXTINCTION 0.20
-#define TU1_BASE_BASE_RATE 0.140
-#define TU1_WIND_SCALING_RATIO 0.35 //TU1 has a smaller packing ratio meaning the wind effect on fire spread is greater
-#define TU1_SLOPE_SCALING_RATIO 0.20
-
 void sim_loop(map_t* map, Weather_t* w) {
     char input_char = 'y';
     int input_time = 0;
+    long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
+    memcpy(map->temp_map, map->map, map_size_bytes);
 
-    map_t temp_map; //We need a temporary grid to store the status updates in to prevent calculating with next time step values within the timestep when iterating neighboring cell to next time step ignited cells.
-    initialize_map(&temp_map);
     do {
         input_time_or_exit(&input_char, &input_time);
 
@@ -30,16 +17,17 @@ void sim_loop(map_t* map, Weather_t* w) {
             for (int k = TIME_STEP; k < input_time; k += TIME_STEP) {
                 for (int i = 1; i < map->size_of_map - 1; i++) { //i sættes til 1, fordi den springer over første kolonne
                     for (int j = 1; j < map->size_of_map - 1; j++) {
-                        calculate_new_status(map, &temp_map, w, i, j);
+                        calculate_new_status(map, w, i, j);
                     }
                 }
-                memcpy(map, &temp_map, sizeof(*map)); //Copies the temporary map with new status values into actual map for each time step.
+
+
+                // Kopierer alle bytes fra map->temp_map data-område til map->map data-område.
+                memcpy(map->map, map->temp_map, map_size_bytes); // KORREKT!
             }
         }
         print_grid(map);
     } while (input_time != 0);
-
-    free_memory(&temp_map);
    //ind i simulationsloopet - køres (ydre loop)
     //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
 
@@ -54,6 +42,8 @@ void sim_loop(map_t* map, Weather_t* w) {
 }
 
 void input_time_or_exit(char* input_char, int* input_time) {
+    int input = -1; // Denne variable bruges til midlertidigt at holde det valgte menupunkt
+    char buffer[100]; // Buffer til at læse hele input linjen
     do {
         printf("Welcome to the simulation. You are to make inputs for how long you wish the simulation run.\n"
           "Input 0: Exit the program.\n"
@@ -64,11 +54,29 @@ void input_time_or_exit(char* input_char, int* input_time) {
           "Input 5: Run simulation for 12 hours\n"
           "Input 6: Run simulation for 24 hours\n"
           );
-        scanf(" %d", input_time);
-    } while (*input_time < 0 || *input_time > 6);
-  }
+        scanf("%d", input_time);
+        printf("entered input= %d\n Running sims",*input_time);
 
-void calculate_new_status(map_t* map, map_t* temp_map, Weather_t* w, int i, int j) {
+        if (*input_time < 0 || *input_time > 6) {
+            printf("Wrong. (0-6 please).\n");
+        }
+    } while (*input_time < 0 || *input_time > 6);
+
+    *input_time = convert_input_to_time(input_time);
+  }
+int convert_input_to_time(int* input_time) {
+    switch (*input_time) {
+        case 1: return 10;
+        case 2: return 30;
+        case 3: return 60;
+        case 4: return 180;
+        case 5: return 180;
+        case 6: return 1440;
+        default: return 0;
+    }
+}
+
+void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
     //Fokuserer på én celle
     //8 ting
     //loop - kalder funktion der beregner fra specifik retning
@@ -78,7 +86,7 @@ void calculate_new_status(map_t* map, map_t* temp_map, Weather_t* w, int i, int 
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        temp_map->map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
     }
 }
 
@@ -106,6 +114,7 @@ double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t d
 }
 
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor) {
+    printf("%lf", base_rate_of_spread * (1 + wind_factor + slope_factor)); //debug print
     return base_rate_of_spread * (1 + wind_factor + slope_factor);
 }
 
@@ -151,7 +160,7 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
 }
 
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) { //TODO: Fix slope factor
-    double elevation_of_current_cell = map[i * map->size_of_map + j].map->topography;
+    double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     double elevation_of_neighbor_cell = get_neighbour_elevation(map, i, j, neighbor_direction);
     if (elevation_of_neighbor_cell >= elevation_of_current_cell) {
         return 0.0;//If we are calculating a downslope, the slope will NOT contribute positively to fire spread.
@@ -183,14 +192,14 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
 
 double get_neighbour_elevation(map_t* map, int i, int j, direction_t neighbor_direction) {//TODO: Fix this
     switch(neighbor_direction.direction_from_neighbor_int) {
-        case East:      return map[i * map->size_of_map + (j + 1)].map->topography;
-        case NorthEast: return map[(i - 1) * map->size_of_map + (j + 1)].map->topography;
-        case North:     return map[(i - 1) * map->size_of_map + j].map->topography;
-        case NorthWest: return map[(i - 1) * map->size_of_map + (j - 1)].map->topography;
-        case West:      return map[i * map->size_of_map + (j - 1)].map->topography;
-        case SouthWest: return map[(i + 1) * map->size_of_map + (j - 1)].map->topography;
-        case South:     return map[(i + 1) * map->size_of_map + j].map->topography;
-        case SouthEast: return map[(i + 1) * map->size_of_map + (j + 1)].map->topography;
+        case East:      return map->map[i * map->size_of_map + (j + 1)].topography;
+        case NorthEast: return map->map[(i - 1) * map->size_of_map + (j + 1)].topography;
+        case North:     return map->map[(i - 1) * map->size_of_map + j].topography;
+        case NorthWest: return map->map[(i - 1) * map->size_of_map + (j - 1)].topography;
+        case West:      return map->map[i * map->size_of_map + (j - 1)].topography;
+        case SouthWest: return map->map[(i + 1) * map->size_of_map + (j - 1)].topography;
+        case South:     return map->map[(i + 1) * map->size_of_map + j].topography;
+        case SouthEast: return map->map[(i + 1) * map->size_of_map + (j + 1)].topography;
 
         default: {
             printf("Error getting topography of neighbor cell. Exiting!\n");

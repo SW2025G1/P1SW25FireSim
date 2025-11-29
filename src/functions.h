@@ -14,13 +14,8 @@ typedef struct cell_t {
 typedef struct map_t {
     int size_of_map;
     cell_t *map;
+    cell_t *temp_map;
 } map_t;
-
-/*typedef struct global_params_t {
-    double wind_speed_forecast[MAX_FORECAST_HOURS];
-    double wind_direction_forecast[MAX_FORECAST_HOURS];
-    double moisture_of_fuel;
-}global_params_t;*/
 
 typedef struct Weather_t {
     double moisture_of_fuel;
@@ -38,4 +33,11 @@ void debug_print(map_t* map);
 void free_memory(map_t* map);
 Weather_t weather_input_from_user();
 void initial_burning_cell(map_t* map);
+
+
+/*typedef struct global_params_t {
+    double wind_speed_forecast[MAX_FORECAST_HOURS];
+    double wind_direction_forecast[MAX_FORECAST_HOURS];
+    double moisture_of_fuel;
+}global_params_t;*/
 #endif

@@ -29,18 +29,22 @@ void get_size_of_map(FILE *fptr, map_t* map) {
     // alle starter med status 0 på alle celler ud over den der starter med at brænde, denne starter med værdien 1
     //cell_t map[SIZE_OF_MAP][SIZE_OF_MAP];
 }
-
+cell_t* initialize_map_helper (cell_t* map_ptr, map_t* map) {
+    map_ptr = malloc((size_t)map->size_of_map * map->size_of_map * sizeof(cell_t));
+    if (map_ptr == NULL) {
+        printf("Memory error with allocating! exiting now :(");
+        exit (EXIT_FAILURE);
+    }
+    return map_ptr;
+}
 /**
  * @brief initialize_array skal dynmaisk allokere hukommelse til arrayet af cell_t structs, på pladsen, hvor cell_t pointeren "map" peger på (i datastructet).
  * @param map
  * @param array Datapakken der indeholder size_of_map og selve griddet (array af cell_t structs)
  */
 void initialize_map(map_t* map) {
-    map->map = malloc(sizeof(cell_t) * (map->size_of_map * map->size_of_map));
-    if (map->map == NULL) {
-        printf("Memory error with allocating! exiting now :(");
-        exit (EXIT_FAILURE);
-    }
+    map->map = initialize_map_helper(map->map, map);
+    map->temp_map = initialize_map_helper(map->temp_map, map);
 }
 void initial_burning_cell(map_t* map) {
     int i = map->size_of_map / 2;
@@ -67,7 +71,7 @@ void get_data_from_file(FILE *fptr, map_t* map) {
     initial_burning_cell(map);
 }
 void print_grid(map_t* map){
-    debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
+    //debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
     //Funktionen print_kort(size_of_grid, struct* array)
     // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
@@ -80,18 +84,15 @@ void print_grid(map_t* map){
             if (map->map[i * map->size_of_map + j].status < 1) {
                 printf(".  ");
             }
-            else if (map->map[i * map->size_of_map + j].status > 3){
-                printf("B  ");
+            else if (map->map[i * map->size_of_map + j].status > 0 && map->map[i * map->size_of_map + j].status < 1) {
+                printf("~  ");
             }
             else {
                 printf("F  ");
             }
         }
-        printf("");
+        printf("\n");
     }
-    printf("Kommet hertil\n");
-
-
 }
 
 void free_memory(map_t* map) {
