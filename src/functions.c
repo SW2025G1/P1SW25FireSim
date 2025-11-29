@@ -4,13 +4,14 @@ FILE* get_file_path_from_user() {
     char filsti[256]; //array hvor man skriver filnavnet
     FILE *fptr; // File* bliver lavet her, så den kan være med i do while loopet.
     do {
-        printf("Indtast filsti til map:");
-        scanf("%255s", filsti);
+        printf("Enter absolute or relative filepath to selected map scenario\n");
+        printf("Suggested input:   src/Data_txt   \n>");
+        scanf(" %255s", filsti);
 
         fptr = fopen(filsti, "r");
         //tilføjer tjek for, at se om filen åbnes korrekt
         if (fptr == NULL) {
-            printf("filen %s blev ikke åbnet korrekt\n", filsti);
+            printf("The filepath %s did not result in succesful file open\n", filsti);
         }
     } while (fptr == NULL);
     return fptr;
@@ -106,19 +107,19 @@ void free_memory(map_t* map) {
 Weather_t weather_input_from_user() {
     Weather_t w;
 
-    printf("Enter weather conditions\n");
-    printf("Moisture of dead surface fuel: ");
+    printf("\nEnter scenario conditions\n\n");
+    printf("The moisture level of dead surface fuel (0.10 = 10 percent moisture): \n");
+    printf("Suggested inputs:   0.05 (drought period)  0.10 (dry)   0.15   (regularly observed value)   0.30 (moist)\n>");
     scanf(" %lf", &w.moisture_of_fuel);
-    printf("Wind speed: ");
+    printf("Wind speed (m/s):\n> ");
     scanf(" %lf", &w.wind_speed);
-    printf("Wind directions: 1 (N)  2 (NE)  3 (E)  4 (SE)  5 (S)  6 (SW)  7 (W)  8 (NW)\n");
-    printf("Wind direction (m/s): ");
+    printf("Wind directions: 0 (E)  1 (NE)  2 (N)  3 (NW)  4 (W)  5 (SW)  6 (S)  7 (SE)\n>");
     scanf(" %d", &w.wind_direction);
 
-    printf("The entered weather conditions\n");
-    printf("Air humidity: %.2lf\n", w.moisture_of_fuel);
+    printf("\nThe entered weather conditions are as follows\n");
+    printf("Dead fuel moisture: %.2lf\n", w.moisture_of_fuel);
     printf("Wind speed: %.2lf\n", w.wind_speed);
-    printf("Wind directions: 1 (N)  2 (NE)  3 (E)  4 (SE)  5 (S)  6 (SW)  7 (W)  8 (NW)\n");
+    printf("Wind directions: 0 (E)  1 (NE)  2 (N)  3 (NW)  4 (W)  5 (SW)  6 (S)  7 (SE)\n");
     printf("Wind direction: %d\n", w.wind_direction);
 
     w.wind_direction_radians = w.wind_direction * (M_PI / 4); //These enum types match the actual radians conversions
@@ -130,8 +131,8 @@ Weather_t weather_input_from_user() {
         for (int i = 0; i < map->size_of_map; i++) {
             printf("\n");
             for (int j = 0; j < map->size_of_map; j++) {
-                printf("kommet hertil\n");
-                printf("Celle [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
+                printf("Reached this point\n");
+                printf("Cell [%d][%d] has values: topo: %.2lf, fuel: %s, status: %.2lf \n", i, j,
                     map->map[i * map->size_of_map + j].topography,
                     map->map[i * map->size_of_map + j].fuel,
                     map->map[i * map->size_of_map + j].status);
