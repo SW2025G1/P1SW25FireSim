@@ -4,7 +4,7 @@
 
 #include "functions.h"
 
-void sim_loop(map_t* map, Weather_t* w) {
+void sim_loop(map_t* map, Weather_t* w) { //TODO: PERHAPS add a timekeeper functionality, so the user knows how long since time 0
     char input_char = 'y';
     int input_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
@@ -54,8 +54,9 @@ void input_time_or_exit(char* input_char, int* input_time) {
           "Input 5: Run simulation for 12 hours\n"
           "Input 6: Run simulation for 24 hours\n"
           );
-        scanf("%d", input_time);
-        printf("entered input= %d\n Running sims",*input_time);
+        scanf(" %d", input_time);
+        printf("entered input= %d\n"
+               "Running sims\n\n",*input_time);
 
         if (*input_time < 0 || *input_time > 6) {
             printf("Wrong. (0-6 please).\n");
@@ -93,15 +94,38 @@ void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
     double status_update = 0;
 
-    double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction);
-    double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
-    double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
-    double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
-    double ignition_time = CELL_WIDTH / total_spread_rate; //distance pr. rate - fx meter pr. min.
+    //if the neighbor cell to calculate spread from is not yet burning, no calculations should be done.
+    if (get_neighbor_status(map, i, j, neighbor_direction.direction_from_neighbor_int) >= 1.0) {
 
-    status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
-    return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step
+        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction);
+        double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
+        double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
+        double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
+        double ignition_time = CELL_WIDTH / total_spread_rate; //distance pr. rate - fx meter pr. min.
 
+        status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
+        return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double get_neighbor_status(const map_t* map, const int i, const int j, const int direction) {
+    switch (direction) {
+        case East:      return map->map[i * map->size_of_map + (j + 1)].status;
+        case NorthEast: return map->map[(i - 1) * map->size_of_map + (j + 1)].status;
+        case North:     return map->map[(i - 1) * map->size_of_map + j].status;
+        case NorthWest: return map->map[(i - 1) * map->size_of_map + (j - 1)].status;
+        case West:      return map->map[i * map->size_of_map + (j - 1)].status;
+        case SouthWest: return map->map[(i + 1) * map->size_of_map + (j - 1)].status;
+        case South:     return map->map[(i + 1) * map->size_of_map + j].status;
+        case SouthEast: return map->map[(i + 1) * map->size_of_map + (j + 1)].status;
+        default: {
+            printf("There was some error returning neighbor status, exiting :(\n");
+            exit(EXIT_FAILURE);
+        }
+    }
 }
 
 double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor) {
@@ -114,7 +138,6 @@ double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t d
 }
 
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor) {
-    printf("%lf", base_rate_of_spread * (1 + wind_factor + slope_factor)); //debug print
     return base_rate_of_spread * (1 + wind_factor + slope_factor);
 }
 
