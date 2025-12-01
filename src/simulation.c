@@ -4,7 +4,7 @@
 
 #include "functions.h"
 
-void sim_loop(map_t* map, Weather_t* w) { //TODO: PERHAPS add a timekeeper functionality, so the user knows how long since time 0
+void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality, so the user knows how long since time 0
     char input_char = 'y';
     int input_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
@@ -218,7 +218,7 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         }
 }
 
-double get_neighbour_elevation(map_t* map, int i, int j, direction_t neighbor_direction) {//TODO: Fix this
+double get_neighbour_elevation(map_t* map, int i, int j, direction_t neighbor_direction) {//TODO: This and the get status could simply be abstracted to only one function that gets the i, j for the neighbor and then extract the values
     switch(neighbor_direction.direction_from_neighbor_int) {
         case East:      return map->map[i * map->size_of_map + (j + 1)].topography;
         case NorthEast: return map->map[(i - 1) * map->size_of_map + (j + 1)].topography;

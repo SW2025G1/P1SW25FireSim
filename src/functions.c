@@ -88,17 +88,18 @@ void print_grid(map_t* map){
 
     for (int i = 0; i < map->size_of_map; i++) {
         for (int j = 0; j < map->size_of_map; j++) {
-            if (map->map[i * map->size_of_map + j].status < 1) {
-                printf(".  ");
+            if (map->map[i * map->size_of_map + j].status >= 1) {
+                printf("%s   %s", RED_BG, RESET);
             }
             else if (map->map[i * map->size_of_map + j].status > 0 && map->map[i * map->size_of_map + j].status < 1) {
-                printf("~  ");
+                printf("%s   %s", YELLOW_BG, RESET);
             }
             else {
-                printf("F  ");
+                printf("%s   %s", GREEN_BG, RESET);
             }
         }
-        printf("\n");
+        printf("%s \n",RESET);
+        fflush(stdout);
     }
 }
 
@@ -110,7 +111,7 @@ void free_memory(map_t* map) {
 
 
 //tage imod vind, vejr, .. fra bruger - printf, scanf
-Weather_t weather_input_from_user() {
+Weather_t weather_input_from_user() { //TODO perhaps make the weather scenario data files and reader functions and change all the functions to support dynamic weather (hourly wind changes). Then maybe give the user the option for manual or file decided weather inputs
     Weather_t w;
 
     printf("\nEnter scenario conditions\n\n");
@@ -133,7 +134,7 @@ Weather_t weather_input_from_user() {
         return w;
     }
 
-    void debug_print(map_t* map) {
+    void debug_print(map_t* map) { //TODO: perhaps separate debugging and the enable ansi codes into a clutter file? So the simulation logic is not confused by these obscure functions
         for (int i = 0; i < map->size_of_map; i++) {
             printf("\n");
             for (int j = 0; j < map->size_of_map; j++) {
@@ -145,3 +146,17 @@ Weather_t weather_input_from_user() {
             }
         }
     }
+// Funktionen, der aktiverer ANSI-koder på Windows konsoller.
+void enable_ansi_codes() { // TODO SEE ABOVE
+#ifdef _WIN32
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) return;
+
+    DWORD dwMode = 0;
+    if (!GetConsoleMode(hOut, &dwMode)) return;
+
+    // ENABLE_VIRTUAL_TERMINAL_PROCESSING er flaget, der gør, at ANSI-koder virker
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+#endif
+}

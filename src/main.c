@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 #include "functions.h"
 #include "simulation.h"
 
@@ -25,6 +26,7 @@
 //map struct med size of map og arrayet indeholdt
 
 int main() {
+    enable_ansi_codes(); //For enabling background color of character field in the output terminal to output visual representation of cells in the program
     //fortæl bruger at det nu er map data filen de skal skrive filstien til
     FILE* file = get_file_path_from_user(); //Bruger input for filstien til datafilen og åbner den i read mode
     map_t map;                               //Erklær en variabel struct af datastrukturen
@@ -44,3 +46,4 @@ int main() {
     //kortfilden
     //ilden starter altid fra centrum af kort - spørger ikke brugeren men sættes som standard
 }
+

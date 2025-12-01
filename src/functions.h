@@ -2,8 +2,16 @@
 #define FUNCTIONS_H
 #define MAX_FORECAST_HOURS 72
 #define MAX_MAP_SIZE 40
+// Farver til brand-status:
+#define RED_BG    "\033[41m"    // Rød baggrund for Udbrændt (Status >= 1.0)
+#define GREEN_BG  "\033[42m"    // Grøn baggrund for Uforbrændt (Status == 0.0)
+#define YELLOW_BG "\033[43m"    // Gul baggrund for Brændende (0.0 < Status < 1.0)
+#define RESET     "\033[0m"     // VIGTIGT: Nulstiller farve og baggrund til standarden
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
+#include <bemapiset.h>
 
 typedef struct cell_t {
     double topography;
@@ -23,6 +31,8 @@ typedef struct Weather_t {
     int wind_direction; //skal laves om til int, fordi vi skal give bruger 8 valgmuligheder i stedet for selv at skrive northeast eller NW
     double wind_direction_radians;
 } Weather_t;
+
+void enable_ansi_codes();
 
 FILE* get_file_path_from_user();
 void initialize_map(map_t* map);
