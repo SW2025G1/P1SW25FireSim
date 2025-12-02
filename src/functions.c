@@ -95,6 +95,13 @@ void get_data_from_file(FILE *fptr, map_t* map) {
 
 void print_grid(map_t* map){
 
+    if (map->size_of_map > 36) {
+        printf("Map size extends beyond the terminal capabilities. Will not print in terminal. \n"
+               "You can see the output in the html file in the /output folder.\n\n Continuing simulation...\n\n");
+        return;
+    }
+
+
     int mid = map->size_of_map / 2;
 
     for (int i = 0; i < map->size_of_map; i++) {
