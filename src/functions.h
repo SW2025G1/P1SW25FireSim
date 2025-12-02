@@ -11,6 +11,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <bemapiset.h>
+#endif
+
 typedef struct cell_t {
     double topography;
     char fuel[4];
