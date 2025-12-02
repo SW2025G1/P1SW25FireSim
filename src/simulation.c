@@ -87,7 +87,7 @@ void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
+        map->temp_map[i * map->size_of_map + j].status += fmax(0, status_calculator(map, w, i, j, neighbor_direction)); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
     }
 }
 
@@ -164,7 +164,7 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
-    return C_wind * w->wind_speed * fmax(0, cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians));
+    return C_wind * w->wind_speed * w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians;
 
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
