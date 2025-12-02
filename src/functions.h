@@ -3,10 +3,10 @@
 #define MAX_FORECAST_HOURS 72
 #define MAX_MAP_SIZE 40
 // Farver til brand-status:
-#define RED_BG    "\033[41m"    // Rød baggrund for Udbrændt (Status >= 1.0)
-#define GREEN_BG  "\033[42m"    // Grøn baggrund for Uforbrændt (Status == 0.0)
-#define YELLOW_BG "\033[43m"    // Gul baggrund for Brændende (0.0 < Status < 1.0)
-#define RESET     "\033[0m"     // VIGTIGT: Nulstiller farve og baggrund til standarden
+#define RED_BG    "\033[41m"    // Red background for burnt (Status >= 1.0)
+#define GREEN_BG  "\033[42m"    // Green is for not burning (Status == 0.0)
+#define YELLOW_BG "\033[43m"    // Yellow is for currently burning (0.0 < Status < 1.0)
+#define RESET     "\033[0m"     // IMPORTANT: This resets the color and background back to the standard setting
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +16,7 @@
 #include <bemapiset.h>
 #endif
 
+//a struct that read the parameters from the data files
 typedef struct cell_t {
     double topography;
     char fuel[4];
