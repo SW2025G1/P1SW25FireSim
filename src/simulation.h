@@ -39,6 +39,6 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j);
 double get_neighbour_elevation(map_t* map, int i, int j, direction_t direction_from_neighbor);
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor);
 int    convert_input_to_time(int* input_time);
-int    get_neighbor_index(const map_t* map, const int i, const int j, const int direction)
+int    get_neighbor_index(const map_t* map, int i, int j, int direction);
 
 #endif //SIMULATION_H
