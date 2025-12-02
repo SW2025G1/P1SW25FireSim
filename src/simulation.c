@@ -7,6 +7,7 @@
 void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality, so the user knows how long since time 0
     char input_char = 'y';
     int input_time = 0;
+    int all_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
     memcpy(map->temp_map, map->map, map_size_bytes);
 
@@ -27,6 +28,7 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
             }
         }
         print_grid(map);
+        update_timekeeper(input_time, &all_time);
     } while (input_time != 0);
    //ind i simulationsloopet - køres (ydre loop)
     //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
@@ -72,10 +74,21 @@ int convert_input_to_time(int* input_time) {
         case 2: return 30;
         case 3: return 60;
         case 4: return 180;
-        case 5: return 180;
+        case 5: return 720;
         case 6: return 1440;
         default: return 0;
     }
+}
+void update_timekeeper(int input_time, int* all_time) {
+    *all_time += input_time;
+    int total = *all_time;
+
+    int days    = total / 1440;
+    total %= 1440;
+
+    int hours   = total / 60;
+    int minutes = total % 60;
+    printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
 }
 
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {

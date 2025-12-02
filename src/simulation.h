@@ -40,5 +40,5 @@ double get_neighbour_elevation(map_t* map, int i, int j, direction_t direction_f
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor);
 int    convert_input_to_time(int* input_time);
 int    get_neighbor_index(const map_t* map, int i, int j, int direction);
-
+void update_timekeeper(int input_time, int* all_time);
 #endif //SIMULATION_H
