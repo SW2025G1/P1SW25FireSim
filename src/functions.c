@@ -92,20 +92,39 @@ void get_data_from_file(FILE *fptr, map_t* map) {
  * This function is used to print out the grid containing colors that symbolise if the cell is burnt (red), burning (yellow) or not burning (green)
  * @param map Is here since we have to use size_of_map to get the size from the dataset found in the function get_size_of_map
  */
+
 void print_grid(map_t* map){
+    //debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
+
+    //Funktionen print_kort(size_of_grid, struct* array)
+    // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
+    //1. for loop (ydre) til at printe linjerne (den bliver ved med at printe til der ikke er flere rækker (size_of_grid))
+    //indre loop: for hver række skal den printe repræsentation af hver celle-status
+    //2. status for hvor lang tid der er gået
+
+    int mid = map->size_of_map / 2;
+
     for (int i = 0; i < map->size_of_map; i++) {
         for (int j = 0; j < map->size_of_map; j++) {
-            if (map->map[i * map->size_of_map + j].status >= 1) {
-                printf("%s   %s", RED_BG, RESET);
+
+            double status = map->map[i * map->size_of_map + j].status;
+
+            const char *bg;
+            if (status >= 1) {
+                bg = RED_BG;
+            } else if (status > 0 && status < 1) {
+                bg = YELLOW_BG;
+            } else {
+                bg = GREEN_BG;
             }
-            else if (map->map[i * map->size_of_map + j].status > 0 && map->map[i * map->size_of_map + j].status < 1) {
-                printf("%s   %s", YELLOW_BG, RESET);
-            }
-            else {
-                printf("%s   %s", GREEN_BG, RESET);
+
+            if (i == mid && j == mid) {
+                printf("%s X %s", bg, RESET);
+            } else {
+                printf("%s   %s", bg, RESET);
             }
         }
-        printf("%s \n",RESET);
+        printf("\n");
         fflush(stdout);
     }
 }
