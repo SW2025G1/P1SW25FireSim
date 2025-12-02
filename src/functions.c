@@ -77,6 +77,7 @@ void get_data_from_file(FILE *fptr, map_t* map) {
     fclose(fptr);
     initial_burning_cell(map);
 }
+
 void print_grid(map_t* map){
     //debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
@@ -86,22 +87,33 @@ void print_grid(map_t* map){
     //indre loop: for hver række skal den printe repræsentation af hver celle-status
     //2. status for hvor lang tid der er gået
 
+    int mid = map->size_of_map / 2;
+
     for (int i = 0; i < map->size_of_map; i++) {
         for (int j = 0; j < map->size_of_map; j++) {
-            if (map->map[i * map->size_of_map + j].status >= 1) {
-                printf("%s   %s", RED_BG, RESET);
+
+            double status = map->map[i * map->size_of_map + j].status;
+
+            const char *bg;
+            if (status >= 1) {
+                bg = RED_BG;
+            } else if (status > 0 && status < 1) {
+                bg = YELLOW_BG;
+            } else {
+                bg = GREEN_BG;
             }
-            else if (map->map[i * map->size_of_map + j].status > 0 && map->map[i * map->size_of_map + j].status < 1) {
-                printf("%s   %s", YELLOW_BG, RESET);
-            }
-            else {
-                printf("%s   %s", GREEN_BG, RESET);
+
+            if (i == mid && j == mid) {
+                printf("%s X %s", bg, RESET);
+            } else {
+                printf("%s   %s", bg, RESET);
             }
         }
-        printf("%s \n",RESET);
+        printf("\n");
         fflush(stdout);
     }
 }
+
 
 void free_memory(map_t* map) {
     printf("Freeing memory\n");
