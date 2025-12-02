@@ -14,7 +14,7 @@ FILE* get_file_path_from_user() {
         fptr = fopen(filsti, "r");
         //tilføjer tjek for, at se om filen åbnes korrekt
         if (fptr == NULL) {
-            printf("The filepath %s did not result in succesful file open\n", filsti);
+            printf("The filepath %s did not result in successful file open\n", filsti);
         }
     } while (fptr == NULL);
     return fptr;
@@ -77,7 +77,7 @@ void get_data_from_file(FILE *fptr, map_t* map) {
     fclose(fptr);
     initial_burning_cell(map);
 }
-void print_grid(map_t* map){
+void print_grid(map_t* map) {
     //debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
 
     //Funktionen print_kort(size_of_grid, struct* array)
