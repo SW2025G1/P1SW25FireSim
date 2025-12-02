@@ -93,10 +93,12 @@ void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
 }
 
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
+    int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
+    int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
     double status_update = 0;
 
     //if the neighbor cell to calculate spread from is not yet burning, no calculations should be done.
-    if (get_neighbor_status(map, i, j, neighbor_direction.direction_from_neighbor_int) >= 1.0) {
+    if (map->map[neighbor_index].status >= 1.0) {
         double distance_between_centers = CELL_WIDTH;
         if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {//TODO: this should be a function call, as it is reused in slope function
             distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
@@ -117,16 +119,16 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
     }
 }
 
-double get_neighbor_status(const map_t* map, const int i, const int j, const int direction) {
+int get_neighbor_index(const map_t* map, const int i, const int j, const int direction) {
     switch (direction) {
-        case East:      return map->map[i * map->size_of_map + (j + 1)].status;
-        case NorthEast: return map->map[(i - 1) * map->size_of_map + (j + 1)].status;
-        case North:     return map->map[(i - 1) * map->size_of_map + j].status;
-        case NorthWest: return map->map[(i - 1) * map->size_of_map + (j - 1)].status;
-        case West:      return map->map[i * map->size_of_map + (j - 1)].status;
-        case SouthWest: return map->map[(i + 1) * map->size_of_map + (j - 1)].status;
-        case South:     return map->map[(i + 1) * map->size_of_map + j].status;
-        case SouthEast: return map->map[(i + 1) * map->size_of_map + (j + 1)].status;
+        case East:      return i * map->size_of_map + (j + 1);
+        case NorthEast: return (i - 1) * map->size_of_map + (j + 1);
+        case North:     return (i - 1) * map->size_of_map + j;
+        case NorthWest: return (i - 1) * map->size_of_map + (j - 1);
+        case West:      return i * map->size_of_map + (j - 1);
+        case SouthWest: return (i + 1) * map->size_of_map + (j - 1);
+        case South:     return (i + 1) * map->size_of_map + j;
+        case SouthEast: return (i + 1) * map->size_of_map + (j + 1);
         default: {
             printf("There was some error returning neighbor status, exiting :(\n");
             exit(EXIT_FAILURE);
@@ -188,9 +190,11 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     }
 }
 
-double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) { //TODO: Fix slope factor
+double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) {
     double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
-    double elevation_of_neighbor_cell = get_neighbour_elevation(map, i, j, neighbor_direction);
+    int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
+    int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
+    double elevation_of_neighbor_cell = map->map[neighbor_index].topography;
     double distance_between_centers = CELL_WIDTH;
     if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {
         distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
@@ -199,7 +203,7 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double C_slope = get_slope_scaling_for_fuel_model(map, i, j);
 
     double delta_topography = elevation_of_current_cell - elevation_of_neighbor_cell;   //Height difference between cells (unit: m)
-    double phi_slope = delta_topography / distance_between_centers; //The rise/distance ratio (slope, unitless)
+    double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
     return  C_slope * phi_slope;
 
@@ -215,22 +219,3 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
             exit (EXIT_FAILURE);
         }
 }
-
-double get_neighbour_elevation(map_t* map, int i, int j, direction_t neighbor_direction) {//TODO: This and the get status could simply be abstracted to only one function that gets the i, j for the neighbor and then extract the values
-    switch(neighbor_direction.direction_from_neighbor_int) {
-        case East:      return map->map[i * map->size_of_map + (j + 1)].topography;
-        case NorthEast: return map->map[(i - 1) * map->size_of_map + (j + 1)].topography;
-        case North:     return map->map[(i - 1) * map->size_of_map + j].topography;
-        case NorthWest: return map->map[(i - 1) * map->size_of_map + (j - 1)].topography;
-        case West:      return map->map[i * map->size_of_map + (j - 1)].topography;
-        case SouthWest: return map->map[(i + 1) * map->size_of_map + (j - 1)].topography;
-        case South:     return map->map[(i + 1) * map->size_of_map + j].topography;
-        case SouthEast: return map->map[(i + 1) * map->size_of_map + (j + 1)].topography;
-
-        default: {
-            printf("Error getting topography of neighbor cell. Exiting!\n");
-            exit(EXIT_FAILURE);
-        }
-    }
-}
-

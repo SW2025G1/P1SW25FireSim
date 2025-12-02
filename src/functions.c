@@ -14,7 +14,7 @@ FILE* get_file_path_from_user() {
         fptr = fopen(filsti, "r");
         //tilføjer tjek for, at se om filen åbnes korrekt
         if (fptr == NULL) {
-            printf("The filepath %s did not result in succesful file open\n", filsti);
+            printf("The filepath %s did not result in successful file open\n", filsti);
         }
     } while (fptr == NULL);
     return fptr;
