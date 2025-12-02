@@ -149,6 +149,8 @@ Weather_t weather_input_from_user() { //TODO perhaps make the weather scenario d
 // Funktionen, der aktiverer ANSI-koder på Windows konsoller.
 void enable_ansi_codes() { // TODO SEE ABOVE
 #ifdef _WIN32
+#include <windows.h>
+#include <bemapiset.h>
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) return;
 

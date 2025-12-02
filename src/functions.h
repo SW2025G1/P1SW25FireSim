@@ -10,8 +10,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <windows.h>
-#include <bemapiset.h>
 
 typedef struct cell_t {
     double topography;
