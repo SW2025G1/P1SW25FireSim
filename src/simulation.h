@@ -26,7 +26,7 @@ typedef struct direction_from_neighbor_t {
 
 void   sim_loop(map_t* map, Weather_t* w);
 void   calculate_new_status(map_t* map, Weather_t* w, int i, int j);
-double get_neighbor_status(const map_t* map, int i, int j, int direction);
+double    get_neighbor_status(const map_t* map, int i, int j, int direction);
 void   input_time_or_exit(char* input_char, int* input_time);
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
 double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
