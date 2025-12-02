@@ -114,12 +114,10 @@ void print_grid(map_t* map){
     }
 }
 
-
 void free_memory(map_t* map) {
     printf("Freeing memory\n");
     free(map->map);
 }
-// Implementation of example function
 
 
 //tage imod vind, vejr, .. fra bruger - printf, scanf

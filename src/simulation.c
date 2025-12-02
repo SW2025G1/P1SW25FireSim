@@ -23,7 +23,7 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
 
 
                 // Kopierer alle bytes fra map->temp_map data-område til map->map data-område.
-                memcpy(map->map, map->temp_map, map_size_bytes); // KORREKT!
+                memcpy(map->map, map->temp_map, map_size_bytes);
             }
         }
         print_grid(map);
@@ -167,7 +167,7 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
-    return C_wind * w->wind_speed * w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians;
+    return C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians);
 
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
@@ -206,8 +206,8 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
     return  C_slope * phi_slope;
-
 }
+
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
             return TL1_SLOPE_SCALING_RATIO;
