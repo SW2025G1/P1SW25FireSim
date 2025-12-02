@@ -94,13 +94,6 @@ void get_data_from_file(FILE *fptr, map_t* map) {
  */
 
 void print_grid(map_t* map){
-    //debug_print(map); //debug printet bruges først hvis vi skal lave om i get_data funktionen og har brug for at vide om det virker.
-
-    //Funktionen print_kort(size_of_grid, struct* array)
-    // size of grid skal kalde en anden funktion, hvor grid størrelsen ligger i
-    //1. for loop (ydre) til at printe linjerne (den bliver ved med at printe til der ikke er flere rækker (size_of_grid))
-    //indre loop: for hver række skal den printe repræsentation af hver celle-status
-    //2. status for hvor lang tid der er gået
 
     int mid = map->size_of_map / 2;
 
