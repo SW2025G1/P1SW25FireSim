@@ -1,6 +1,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 #include "functions.h"
+#include "../visualizer/visualizer.h"
 
 #define TIME_STEP 5 //TODO play around with smaller timesteps?
 #define DIRECTIONS_AMOUNT 8
