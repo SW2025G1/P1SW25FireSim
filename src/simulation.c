@@ -64,7 +64,8 @@ void input_time_or_exit(char* input_char, int* input_time) {
     } while (*input_time < 0 || *input_time > 6);
 
     *input_time = convert_input_to_time(input_time);
-  }
+}
+
 int convert_input_to_time(int* input_time) {
     switch (*input_time) {
         case 1: return 10;
@@ -102,7 +103,7 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
             //The actual distance from center of cell to center of cell is larger by the square root of two ratio
         }
 
-        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction);
+        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction); //TODO: indsæt if statement //Hvis 0 så lad værd med at regne de næste
         double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
         double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
         double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
@@ -135,8 +136,8 @@ double get_neighbor_status(const map_t* map, const int i, const int j, const int
 
 double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor) {
     //tage base rate - funktionen skal bruge fuel model id og moisture fra weather
-    double extinction_moisture_of_cell = 1.00; //set to safe value in case assigning values fails in below.
-    double base_base_rate = 0.00; //The base rate not modified for moisture
+    double extinction_moisture_of_cell; //set to safe value in case assigning values fails in below.
+    double base_base_rate; //The base rate not modified for moisture
     update_base_rate_values(map, &base_base_rate, &extinction_moisture_of_cell, i, j);
 
     return base_base_rate * (1 - (w->moisture_of_fuel / extinction_moisture_of_cell));
@@ -190,9 +191,6 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) { //TODO: Fix slope factor
     double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     double elevation_of_neighbor_cell = get_neighbour_elevation(map, i, j, neighbor_direction);
-    if (elevation_of_neighbor_cell >= elevation_of_current_cell) {
-        return 0.0;//If we are calculating a downslope, the slope will NOT contribute positively to fire spread.
-    }//We are enforcing non negativity of slope, and the wind, factor, to avoid the potential of negative total spread rate
     double distance_between_centers = CELL_WIDTH;
     if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {
         distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
