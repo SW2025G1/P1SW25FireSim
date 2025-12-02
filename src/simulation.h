@@ -9,12 +9,22 @@
 #define SQRT_OF_2 1.41421356
 #define TL1_MOISTURE_EXTINCTION 0.30
 #define TL1_BASE_BASE_RATE 0.064
-#define TL1_WIND_SCALING_RATIO 0.15 //Dense fuel packing ratio means lesser wind scaling ratio than TU1
+#define TL1_WIND_SCALING_RATIO 0.30 //Dense fuel packing ratio means lesser wind scaling ratio than TU1
 #define TL1_SLOPE_SCALING_RATIO 0.05 //Dense fuel packing reatio means also lesser thermal penetration efficiency uphill
 #define TU1_MOISTURE_EXTINCTION 0.20
 #define TU1_BASE_BASE_RATE 0.140
 #define TU1_WIND_SCALING_RATIO 0.35 //TU1 has a smaller packing ratio meaning the wind effect on fire spread is greater
 #define TU1_SLOPE_SCALING_RATIO 0.20
+
+typedef enum axes_directions_e {
+    E_W, NE_SW, N_S, NW_SE
+} axes_directions_e;
+
+typedef struct axis_rates_t {
+    axes_directions_e axis;
+    double first_direction;
+    double opposing_direction;
+}axis_rates_t;
 
 typedef enum cardinal_directions {
     East, NorthEast, North, NorthWest, West, SouthWest, South, SouthEast
@@ -41,5 +51,6 @@ double get_neighbour_elevation(map_t* map, int i, int j, direction_t direction_f
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor);
 int    convert_input_to_time(int* input_time);
 int    get_neighbor_index(const map_t* map, int i, int j, int direction);
+void         update_timekeeper(int input_time, int* all_time);
 
 #endif //SIMULATION_H

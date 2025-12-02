@@ -15,18 +15,13 @@
 static const char* get_color_from_cell(cell_t cell) {
     // Bemærk: Du kan forfine disse farver for bedre visualisering
     if (cell.status >= 1.0) {
-        return "#646464"; // Grå (Udbrændt/Aske)
-    } else if (cell.status > 0.5) {
-        return "#FF6600"; // Orange (Høj ild)
-    } else if (cell.status > 0.0) {
-        return "#FFCC00"; // Gul (Ulmer)
+        return "#FF0000"; // Grå (Udbrændt/Aske)
     } else if (strcmp(cell.fuel, "TL1") == 0 || strcmp(cell.fuel, "TU1") == 0) {
         return "#009632"; // Grøn (Brændbar)
     } else {
         return "#323296"; // Blå (Ikke-brændbar, f.eks. Vand)
     }
 }
-
 
 /**
  * @brief Skriver indholdet af kortet til et HTML-dokument.
@@ -71,6 +66,9 @@ void write_map_to_html(map_t* map, const char* filename) {
         for (int j = 0; j < size; j++) {
             cell_t cell = map->map[i * size + j];
             const char* color = get_color_from_cell(cell);
+            if (i == map->size_of_map / 2 && j == map->size_of_map / 2) {
+                color = "#000000";
+            }
 
             // Generer et <div> element for hver celle med den korrekte baggrundsfarve
             fprintf(fp, "<div class=\"cell\" style=\"background-color: %s;\"></div>\n", color);
