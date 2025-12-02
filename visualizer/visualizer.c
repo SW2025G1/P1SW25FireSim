@@ -5,7 +5,7 @@
 #include "visualizer.h"
 
 // Definerer størrelsen af hver celle i pixels (f.eks. 4x4)
-#define CELL_SIZE_PIXELS 4
+#define CELL_SIZE_PIXELS 3
 
 /**
  * @brief Omdanner statusdata til en CSS farvekode.
