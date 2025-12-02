@@ -23,7 +23,7 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
 
 
                 // Kopierer alle bytes fra map->temp_map data-område til map->map data-område.
-                memcpy(map->map, map->temp_map, map_size_bytes); // KORREKT!
+                memcpy(map->map, map->temp_map, map_size_bytes);
             }
         }
         print_grid(map);
