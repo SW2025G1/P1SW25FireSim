@@ -43,4 +43,7 @@ int    convert_input_to_time(int* input_time);
 int    get_neighbor_index(const map_t* map, int i, int j, int direction);
 void   update_timekeeper(int input_time, int* all_time);
 
+
+
+void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j); //alternative logic to demonstrate
 #endif //SIMULATION_H
