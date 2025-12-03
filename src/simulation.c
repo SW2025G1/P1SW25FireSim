@@ -8,6 +8,7 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
     char input_char = 'y';
     int input_time = 0;
     int all_time = 0;
+    // Udtrykket beregner hvor mange bytes et kvadratisk grid (map) kræver, når hver celle er af typen cell_t.
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
     memcpy(map->temp_map, map->map, map_size_bytes);
 

@@ -127,8 +127,16 @@ void print_grid(map_t* map){
  * @param map
  */
 void free_memory(map_t* map) {
+    if (map == NULL) return;
+
     printf("Freeing memory\n");
     free(map->map);
+    map->map = NULL;
+
+    free(map->temp_map);
+    map->temp_map = NULL;
+
+    free(map);
 }
 
 /**
