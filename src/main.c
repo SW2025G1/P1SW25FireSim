@@ -10,23 +10,22 @@
 int main() {
     enable_ansi_codes(); //For enabling background color of character field in the output terminal to output visual representation of cells in the program
 
-    FILE* file = get_file_path_from_user(); //Bruger input for filstien til datafilen og åbner den i read mode
+    FILE* file = get_file_path_from_user(); //Opens up data files in read mode
 
-    map_t map;                               //Erklær en variabel struct af datastrukturen
+    map_t map;                               //A declaration of a variable to a struct of the data structure
 
-    get_size_of_map(file, &map);         //Opdater array.size_of_map fra datafilens værdi for størrelsen
+    get_size_of_map(file, &map);         //Updating array.size_of_map from the value of the datafile for the given size
 
-    Weather_t w = weather_input_from_user();  //Spørger brugeren efter vejrforhold - temperatur, vindhastighed, vindretning og luftfugtighed.
+    Weather_t w = weather_input_from_user();  //Asking for weather input, temperature, wind speed, wind direction and air humidity.
 
-    initialize_map(&map);                    //Allokerer arrayet dynamisk, skal bruge size_of_map
+    initialize_map(&map);                    //Allocating the array dynamic
 
-    get_data_from_file(file, &map);      //Initialiserer celler i map til værdierne fra datafilen
+    get_data_from_file(file, &map);      //Initializing the cells in the map for the values from the data file.
 
     print_grid(&map);
 
-    sim_loop(&map, &w);             //Kører simulationsdelen af programmet, som i et loop tager input for
-                                    //simulationsvarighed, simulerer spredning af ild
-                                    //og printer mappet af cellers status (brand eller ingen brand)
+    sim_loop(&map, &w);             //Running the simulation part of the program, as a loop containing:
+                                    //the duration of the simulation, how the spread of fire moves and prints the map of the cells status (fire or no fire)
     free_memory(&map);
     return EXIT_SUCCESS;
 

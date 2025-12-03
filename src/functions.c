@@ -16,7 +16,7 @@ FILE* get_file_path_from_user() {
         scanf(" %255s", filsti);
 
         fptr = fopen(filsti, "r");
-        //tilføjer tjek for, at se om filen åbnes korrekt
+        //Adding af check to see if the files is opening up correctly
         if (fptr == NULL) {
             printf("The filepath %s did not result in successful file open\n", filsti);
         }

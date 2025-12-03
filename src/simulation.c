@@ -4,8 +4,13 @@
 
 #include "functions.h"
 
-void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality, so the user knows how long since time 0
-    char input_char = 'y';
+/**
+ * This is the simulation loop, where we in this specific function have a loop to generate each timestep of the simulation
+ * We also call the helper functions in order to gather all of the simulations parts of the program to this one called in main
+ * @param map
+ * @param w
+ */
+void sim_loop(map_t* map, Weather_t* w) {
     int input_time = 0;
     int all_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
@@ -14,18 +19,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
     const char *OUTPUT_DIR = "output";
 
     do {
-        input_time_or_exit(&input_char, &input_time);
+        input_time_or_exit(&input_time);
 
-        if (input_time != 0) { //if still 0, the user exited the program.
+        if (input_time != 0) {
             for (int k = TIME_STEP; k < input_time; k += TIME_STEP) {
-                for (int i = 1; i < map->size_of_map - 1; i++) { //i sættes til 1, fordi den springer over første kolonne
+                for (int i = 1; i < map->size_of_map - 1; i++) { //i is set to 1, to ensure that it skips the first column
                     for (int j = 1; j < map->size_of_map - 1; j++) {
                         calculate_new_status(map, w, i, j);
                     }
                 }
 
 
-                // Kopierer alle bytes fra map->temp_map data-område til map->map data-område.
+                //Copy all bytes from map->temp_map data area to map->map data area.
                 memcpy(map->map, map->temp_map, map_size_bytes);
             }
         }
@@ -34,21 +39,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
         simulation_run_count++;
 
         if (map->size_of_map >= 36) {
-            // Generer filnavnet og stien.
+            // Generate the file name and path
             char filename[256];
             char command[512];
 
-            // NY FILNAVNSLOGIK: frame_[antal_kørsler]_[samlet_tid_minutter].html
-            // Dette sikrer unikke navne og god sporing.
+            // NEW FILNAMELOGIC: frame_[antal_kørsler]_[samlet_tid_minutter].html
             sprintf(filename, "%s/frame_%04d_T%dmin.html",
                     OUTPUT_DIR,
                     simulation_run_count,
-                    all_time); // Bruger total tid
+                    all_time);
 
-            // Bruger 'map' som er den aktuelle kort-pointer
             write_map_to_html(map, filename);
 
-            // Åbn filen i standard browser
             char *open_command = NULL;
 
             #if defined(_WIN32) || defined(_WIN64)
@@ -64,31 +66,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
                 if (system(command) != 0) {
                     printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
                 }
-            } else {
-                printf("Warning, OS not identified, open %s manually from output dir.\n", filename);
             }
-
             printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
                    input_time, all_time);
         }
 
     } while (input_time != 0);
-   //ind i simulationsloopet - køres (ydre loop)
-    //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
-
-    //Det indre loop
-    //Udregning pr. celle om cellen er gået i brand - ny status
-    //akummulere en status for hver beregning cyklus - skal bygge op til ny antendelse i næste kørsel af loop
-    //skal opdatere med naboernes spredningsratio i visse timesteps
-    //skal opdatere med mindre interval end brugeren har inputtet - da brænden speder sig hurtigere end én celle pr. time osv.
-    //vi sætter fast værdi (senere opdatering: skal også her opdatere timesteppets størrelse)
-
-    //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
 }
 
-void input_time_or_exit(char* input_char, int* input_time) {
-    int input = -1; // Denne variable bruges til midlertidigt at holde det valgte menupunkt
-    char buffer[100]; // Buffer til at læse hele input linjen
+/**
+ * This function is a helper to the simulation loop, where this adds the possibility for the user to decided on the amount time they wish for the simulation to run
+*/
+void input_time_or_exit(int* input_time) {
     do {
         printf("Welcome to the simulation. You are to make inputs for how long you wish the simulation run.\n"
           "Input 0: Exit the program.\n"
@@ -111,6 +100,9 @@ void input_time_or_exit(char* input_char, int* input_time) {
     *input_time = convert_input_to_time(input_time);
 }
 
+/**
+ * This converts the decided upon time picked by the user in the funtion above to a specific time we can then use to calculate
+*/
 int convert_input_to_time(int* input_time) {
     switch (*input_time) {
         case 1: return 10;
@@ -123,20 +115,27 @@ int convert_input_to_time(int* input_time) {
     }
 }
 
+/**
+ * This calculates the affect each neighbor has to the cell currently being calculated
+ */
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
-    //Fokuserer på én celle
-    //8 ting
-    //loop - kalder funktion der beregner fra specifik retning
-    //loop starter fra sydcelle
-    //sydrate
-    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
+    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //Angle we calculate is 0 as the starting point - we then ad one fourth to each time (thereby starting in: direction_from_neighbor: East)
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction);
     }
 }
 
+/**
+ *
+ * @param map
+ * @param w
+ * @param i
+ * @param j
+ * @param neighbor_direction
+ * @return
+ */
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
     int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
