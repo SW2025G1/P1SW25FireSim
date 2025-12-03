@@ -32,42 +32,46 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
         print_grid(map);
         update_timekeeper(input_time, &all_time);
         simulation_run_count++;
-        // Generer filnavnet og stien.
-        char filename[256];
-        char command[512];
 
-        // NY FILNAVNSLOGIK: frame_[antal_kørsler]_[samlet_tid_minutter].html
-        // Dette sikrer unikke navne og god sporing.
-        sprintf(filename, "%s/frame_%04d_T%dmin.html",
-                OUTPUT_DIR,
-                simulation_run_count,
-                all_time); // Bruger total tid
+        if (map->size_of_map >= 36) {
+            // Generer filnavnet og stien.
+            char filename[256];
+            char command[512];
 
-        // Bruger 'map' som er den aktuelle kort-pointer
-        write_map_to_html(map, filename);
+            // NY FILNAVNSLOGIK: frame_[antal_kørsler]_[samlet_tid_minutter].html
+            // Dette sikrer unikke navne og god sporing.
+            sprintf(filename, "%s/frame_%04d_T%dmin.html",
+                    OUTPUT_DIR,
+                    simulation_run_count,
+                    all_time); // Bruger total tid
 
-        // Åbn filen i standard browser
-        char *open_command = NULL;
+            // Bruger 'map' som er den aktuelle kort-pointer
+            write_map_to_html(map, filename);
 
-#if defined(_WIN32) || defined(_WIN64)
-        open_command = "start";
-#elif defined(__APPLE__)
-        open_command = "open";
-#elif defined(__linux__)
-        open_command = "xdg-open";
-#endif
+            // Åbn filen i standard browser
+            char *open_command = NULL;
 
-        if (open_command) {
-            sprintf(command, "%s %s", open_command, filename);
-            if (system(command) != 0) {
-                printf("ADVARSEL: Kunne ikke åbne filen via systemkommandoen. Åbn venligst %s manuelt.\n", filename);
+            #if defined(_WIN32) || defined(_WIN64)
+                        open_command = "start";
+            #elif defined(__APPLE__)
+                        open_command = "open";
+            #elif defined(__linux__)
+                        open_command = "xdg-open";
+            #endif
+
+            if (open_command) {
+                sprintf(command, "%s %s", open_command, filename);
+                if (system(command) != 0) {
+                    printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
+                }
+            } else {
+                printf("Warning, OS not identified, open %s manually from output dir.\n", filename);
             }
-        } else {
-            printf("ADVARSEL: Ukendt operativsystem. Åbn venligst %s manuelt.\n", filename);
+
+            printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
+                   input_time, all_time);
         }
 
-        printf("--- SIMULATION KØRT: %d minutter (I alt: %d minutter) ---\n",
-               input_time, all_time);
     } while (input_time != 0);
    //ind i simulationsloopet - køres (ydre loop)
     //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
@@ -131,37 +135,14 @@ void update_timekeeper(int input_time, int* all_time) {
 }
 
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
-    double direction_rates[DIRECTIONS_AMOUNT];
 
-    // Calculate Inverse Ignition Time for ALL 8 directions
-    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) {
+
+    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
         direction_t neighbor_direction;
-        neighbor_direction.direction_from_neighbor_int = direction;
-        neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4);
-        // Call the status_calculator for each of the 8 neighbors and store the rate.
-        direction_rates[direction] = status_calculator(map, w, i, j, neighbor_direction);
+        neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
+        neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
     }
-
-    double Sum_squared_axes_rates = 0;
-    // Perform L2 Summation
-    for (int ax = E_W; ax < NUMBER_OF_AXES; ax ++) {
-
-        int primary_dir = ax; // The current axis index (ax) is also the index of the primary direction (e.g., East=0, NE=1)
-        int opposing_dir = primary_dir + 4; // The index of the opposing direction is primary_dir + 4 (guaranteed to be 4, 5, 6, or 7)
-
-        double first_rate = direction_rates[primary_dir]; // Get the Inverse Ignition Times (R_i) from our temporary array
-        double opposing_rate = direction_rates[opposing_dir];
-
-        double axis_total_rate = first_rate + opposing_rate; // 3. Sum the component rates of the opposing pair (R_axis)
-
-        Sum_squared_axes_rates += pow(axis_total_rate, 2); // 4. Square the axis total and add it to the running sum
-    }
-
-    double Rate_of_fire_progress = sqrt(Sum_squared_axes_rates);
-
-    double status_update_value = Rate_of_fire_progress * TIME_STEP;
-
-    map->temp_map[i * map->size_of_map + j].status += status_update_value;
 }
 
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
@@ -182,8 +163,6 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
         double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
         double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
         double ignition_time = distance_between_centers / total_spread_rate; //distance pr. rate - fx meter pr. min.
-        double reverse_ignition_time = 1 / ignition_time;
-        return reverse_ignition_time;
 
         status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
         return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step
@@ -241,7 +220,7 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
-    return C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians);
+    return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
 
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
@@ -279,7 +258,7 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double delta_topography = elevation_of_current_cell - elevation_of_neighbor_cell;   //Height difference between cells (unit: m)
     double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
-    return  C_slope * phi_slope;
+    return  fmax(0, C_slope * phi_slope);
 }
 
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {

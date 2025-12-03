@@ -5,7 +5,7 @@
 #include "visualizer.h"
 
 // Definerer størrelsen af hver celle i pixels (f.eks. 4x4)
-#define CELL_SIZE_PIXELS 3
+#define CELL_SIZE_PIXELS 4
 
 /**
  * @brief Omdanner statusdata til en CSS farvekode.
@@ -15,7 +15,7 @@
 static const char* get_color_from_cell(cell_t cell) {
     // Bemærk: Du kan forfine disse farver for bedre visualisering
     if (cell.status >= 1.0) {
-        return "#FF0000"; // Grå (Udbrændt/Aske)
+        return "#FF0000"; // Rød
     } else if (strcmp(cell.fuel, "TL1") == 0 || strcmp(cell.fuel, "TU1") == 0) {
         return "#009632"; // Grøn (Brændbar)
     } else {
@@ -79,9 +79,9 @@ void write_map_to_html(map_t* map, const char* filename) {
 
     // Valgfri: Tilføj lidt info om rammen
     fprintf(fp, "<div class=\"info-box\">\n");
-    fprintf(fp, "<h2>Simuleringsoverblik</h2>\n");
-    fprintf(fp, "<p>Størrelse: %d x %d</p>\n", size, size);
-    fprintf(fp, "<p>Celle størrelse: %dpx</p>\n", CELL_SIZE_PIXELS);
+    fprintf(fp, "<h2></h2>\n");
+    fprintf(fp, "<p>Grid size: %d x %d</p>\n", size, size);
+    fprintf(fp, "<p>Cell pixels size: %dpx</p>\n", CELL_SIZE_PIXELS);
     fprintf(fp, "</div>\n");
 
     // --- 4. Afslut HTML ---
@@ -89,5 +89,5 @@ void write_map_to_html(map_t* map, const char* filename) {
     fprintf(fp, "</html>\n");
 
     fclose(fp);
-    printf("HTML filen '%s' med %dx%d celler er skrevet og klar til at åbne i browseren.\n", filename, size, size);
+    printf("HTML filen '%s' with %dx%d cells are written and ready to open.\n", filename, size, size);
 }

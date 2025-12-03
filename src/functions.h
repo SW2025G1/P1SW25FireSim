@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 #define MAX_FORECAST_HOURS 72
 #define MAX_MAP_SIZE 1000
-#define NUMBER_OF_AXES 4
+
 // Farver til brand-status:
 #define RED_BG    "\033[41m"    // Red background for burnt (Status >= 1.0)
 #define GREEN_BG  "\033[42m"    // Green is for not burning (Status == 0.0)
