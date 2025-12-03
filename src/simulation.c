@@ -4,7 +4,7 @@
 
 #include "functions.h"
 
-void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality, so the user knows how long since time 0
+void sim_loop(map_t* map, Weather_t* w) {
     char input_char = 'y';
     int input_time = 0;
     int all_time = 0;
@@ -124,17 +124,14 @@ int convert_input_to_time(int* input_time) {
 }
 
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
-    //Fokuserer på én celle
-    //8 ting
-    //loop - kalder funktion der beregner fra specifik retning
-    //loop starter fra sydcelle
-    //sydrate
+
     for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
-    }
+
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //logic 1
+        }
 }
 
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
@@ -275,4 +272,21 @@ void update_timekeeper(int input_time, int* all_time) {
     int hours   = total / 60;
     int minutes = total % 60;
     printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
+}
+
+void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
+    double directions_rates[DIRECTIONS_AMOUNT];
+    double largest_rate = 0.0;
+
+    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
+        direction_t neighbor_direction;
+        neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
+        neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
+        directions_rates [direction] = status_calculator(map, w, i, j, neighbor_direction);
+
+        if (directions_rates[direction] > largest_rate) {
+            largest_rate = directions_rates[direction];
+        }
+    }
+    map->temp_map[i * map->size_of_map + j].status += largest_rate;
 }
