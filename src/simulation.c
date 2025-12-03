@@ -264,3 +264,15 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
             exit (EXIT_FAILURE);
         }
 }
+
+void update_timekeeper(int input_time, int* all_time) {
+    *all_time += input_time;
+    int total = *all_time;
+
+    int days    = total / 1440;
+    total %= 1440;
+
+    int hours   = total / 60;
+    int minutes = total % 60;
+    printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
+}
