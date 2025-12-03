@@ -4,6 +4,7 @@
 
 #include "functions.h"
 #include "simulation.h"
+#include "visualizer.h"
 
 
 int main() {

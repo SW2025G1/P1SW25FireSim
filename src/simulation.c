@@ -8,9 +8,10 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
     char input_char = 'y';
     int input_time = 0;
     int all_time = 0;
-    // Udtrykket beregner hvor mange bytes et kvadratisk grid (map) kræver, når hver celle er af typen cell_t.
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
     memcpy(map->temp_map, map->map, map_size_bytes);
+    int simulation_run_count = 0;
+    const char *OUTPUT_DIR = "output";
 
     do {
         input_time_or_exit(&input_char, &input_time);
@@ -30,6 +31,47 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
         }
         print_grid(map);
         update_timekeeper(input_time, &all_time);
+        simulation_run_count++;
+
+        if (map->size_of_map >= 36) {
+            // Generer filnavnet og stien.
+            char filename[256];
+            char command[512];
+
+            // NY FILNAVNSLOGIK: frame_[antal_kørsler]_[samlet_tid_minutter].html
+            // Dette sikrer unikke navne og god sporing.
+            sprintf(filename, "%s/frame_%04d_T%dmin.html",
+                    OUTPUT_DIR,
+                    simulation_run_count,
+                    all_time); // Bruger total tid
+
+            // Bruger 'map' som er den aktuelle kort-pointer
+            write_map_to_html(map, filename);
+
+            // Åbn filen i standard browser
+            char *open_command = NULL;
+
+            #if defined(_WIN32) || defined(_WIN64)
+                        open_command = "start";
+            #elif defined(__APPLE__)
+                        open_command = "open";
+            #elif defined(__linux__)
+                        open_command = "xdg-open";
+            #endif
+
+            if (open_command) {
+                sprintf(command, "%s %s", open_command, filename);
+                if (system(command) != 0) {
+                    printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
+                }
+            } else {
+                printf("Warning, OS not identified, open %s manually from output dir.\n", filename);
+            }
+
+            printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
+                   input_time, all_time);
+        }
+
     } while (input_time != 0);
    //ind i simulationsloopet - køres (ydre loop)
     //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
@@ -80,17 +122,6 @@ int convert_input_to_time(int* input_time) {
         default: return 0;
     }
 }
-void update_timekeeper(int input_time, int* all_time) {
-    *all_time += input_time;
-    int total = *all_time;
-
-    int days    = total / 1440;
-    total %= 1440;
-
-    int hours   = total / 60;
-    int minutes = total % 60;
-    printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
-}
 
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
     //Fokuserer på én celle
@@ -102,7 +133,7 @@ void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        map->temp_map[i * map->size_of_map + j].status += fmax(0, status_calculator(map, w, i, j, neighbor_direction)); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
     }
 }
 
@@ -181,7 +212,7 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
-    return C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians);
+    return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
 
     //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
     //k = retning - vi vil gerne beregne for denne
@@ -219,7 +250,7 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double delta_topography = elevation_of_current_cell - elevation_of_neighbor_cell;   //Height difference between cells (unit: m)
     double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
-    return  C_slope * phi_slope;
+    return  fmax(0, C_slope * phi_slope);
 }
 
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
