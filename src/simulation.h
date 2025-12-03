@@ -30,7 +30,7 @@ void   calculate_new_status(map_t* map, Weather_t* w, int i, int j);
 double get_neighbor_status(const map_t* map, int i, int j, int direction);
 void   input_time_or_exit(int* input_time);
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
-double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
+double calculate_base_rate(map_t* map, Weather_t* w, int i, int j);
 void   update_base_rate_values(map_t* map, double* base_base_rate, double* extinction_moisture_of_cell, int i, int j);
 double direction_to_radians(int wind_direction);
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t direction_from_neighbor);

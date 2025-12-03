@@ -129,13 +129,7 @@ void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
 }
 
 /**
- *
- * @param map
- * @param w
- * @param i
- * @param j
- * @param neighbor_direction
- * @return
+ * This function also combine the helper functions returning either the updated status or 0 if the cell is still not calculated to be in a scenario where it is on fire
  */
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
@@ -150,7 +144,7 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
             //The actual distance from center of cell to center of cell is larger by the square root of two ratio
         }
 
-        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction); //TODO: indsæt if statement //Hvis 0 så lad værd med at regne de næste
+        double base_rate_of_spread = calculate_base_rate(map, w, i, j); //TODO: indsæt if statement //Hvis 0 så lad værd med at regne de næste
         double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
         double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
         double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
@@ -164,6 +158,10 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
     }
 }
 
+/**
+ * This function calculates what each direction is in order to use it for the calculation of each neighbor as seen just above
+ * @return is the EXIT_FAILURE
+ */
 int get_neighbor_index(const map_t* map, const int i, const int j, const int direction) {
     switch (direction) {
         case East:      return i * map->size_of_map + (j + 1);
@@ -181,8 +179,11 @@ int get_neighbor_index(const map_t* map, const int i, const int j, const int dir
     }
 }
 
-double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor) {
-    //tage base rate - funktionen skal bruge fuel model id og moisture fra weather
+/**
+ * This takes the Base rate calculation and find it in the simplified version studied in the repport
+ * The function needs fuel model id and moisture fra weather
+*/
+double calculate_base_rate(map_t* map, Weather_t* w, int i, int j) {
     double extinction_moisture_of_cell; //set to safe value in case assigning values fails in below.
     double base_base_rate; //The base rate not modified for moisture
     update_base_rate_values(map, &base_base_rate, &extinction_moisture_of_cell, i, j);
@@ -190,10 +191,16 @@ double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t d
     return base_base_rate * (1 - (w->moisture_of_fuel / extinction_moisture_of_cell));
 }
 
+/**
+ * This calculates the total spread rate as found simplified and accounted for in the repport
+*/
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor) {
     return base_rate_of_spread * (1 + wind_factor + slope_factor);
 }
 
+/**
+ * The function below takes the calculated base rate and further calculates for the two scenarios TL1 and TU1
+ */
 void update_base_rate_values(map_t* map, double* base_base_rate, double* extinction_moisture_of_cell, int i, int j) {
     if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
         *extinction_moisture_of_cell = TL1_MOISTURE_EXTINCTION;
@@ -209,20 +216,22 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
     }
 }
 
+/**
+ * Calculating the wind factor to find how fast the fire spread i the decided upon direction
+ * K = the direction we want to calculate
+ * @return  fmax() = which takes the maximal value between two scenarios - If the right hand side is positive = this is the chosen one, but if it is negativ then = 0
+ */
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
     return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
 
-    //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
-    //k = retning - vi vil gerne beregne for denne
-    //den faktiske vindretning
-    //hvis den er negativ, dvs. vind ikke blæser i den retning = 0
-    //hastighed som er komponenten af vinden - matematisk funktion - max(0,f(kom)) <- tager maksimale værdi mellem 2. Hvis den højre er positiv, så vælger den den. Hvis den er negativ, så vælger den 0
-
-    //R = R_0 * (1 + theta_wind_1 i + slope factor_1 y)
-    //return max(0,f(kom)); //f(kom) er beregningsresultatet - theta wind (wind factor)
 }
+
+/**
+ * This checks the fuel model ID in current cell
+ * @return wind scaling ratio for the corresponding fuel model
+ */
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
         return TL1_WIND_SCALING_RATIO;
@@ -235,6 +244,10 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     }
 }
 
+/**
+ * Finding the typography and the elevation found in neighbor cells to find the topography
+ * @return
+ */
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) {
     double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
@@ -253,6 +266,10 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     return  fmax(0, C_slope * phi_slope);
 }
 
+/**
+ * This checks the fuel ID for the current cell
+ * @return slope scaling ratio for the corresponding fuel model
+*/
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
             return TL1_SLOPE_SCALING_RATIO;
@@ -265,6 +282,9 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         }
 }
 
+/**
+ * This function checks the time spent when the program is run and updates the user
+*/
 void update_timekeeper(int input_time, int* all_time) {
     *all_time += input_time;
     int total = *all_time;
@@ -277,6 +297,11 @@ void update_timekeeper(int input_time, int* all_time) {
     printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
 }
 
+
+//=====================EXTRA=======================
+/**
+ * Alternative function for the calculation of the new status logic
+ */
 void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
     double directions_rates[DIRECTIONS_AMOUNT];
     double largest_rate = 0.0;
