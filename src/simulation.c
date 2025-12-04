@@ -250,7 +250,19 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double delta_topography = elevation_of_current_cell - elevation_of_neighbor_cell;   //Height difference between cells (unit: m)
     double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
-    return  fmax(0, C_slope * phi_slope);
+    // // Optional multiplier to make slope effect noticeable
+    // double SLOPE_MULTIPLIER = 8;
+
+    double slope_factor = C_slope * phi_slope;
+
+    if (slope_factor > 5) {
+        slope_factor = 5;
+    }
+    if (slope_factor <-1){
+    slope_factor = 1;
+    }
+
+    return slope_factor;
 }
 
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
