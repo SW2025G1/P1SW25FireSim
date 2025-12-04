@@ -2,7 +2,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "functions.h"
+#include "input-output.h"
 
 /**
  * This is the simulation loop, where we in this specific function have a loop to generate each timestep of the simulation
@@ -142,26 +142,33 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
     int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
     double status_update = 0;
 
-    //if the neighbor cell to calculate spread from is not yet burning, no calculations should be done.
-    if (map->map[neighbor_index].status >= 1.0) {
+    if (map->map[neighbor_index].status >= 1.0) { //calculate spread if the neighbor is burning
         double distance_between_centers = CELL_WIDTH;
-        if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {//TODO: this should be a function call, as it is reused in slope function
-            distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
-            //The actual distance from center of cell to center of cell is larger by the square root of two ratio
+        if (is_diagonal(neighbor_direction.direction_from_neighbor_int) ) {//Odd direction int values are diagonals
+            distance_between_centers *= SQRT_OF_2;                         //diagonals are further apart by *= sqrt(2)
         }
 
-        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction); //TODO: indsæt if statement //Hvis 0 så lad værd med at regne de næste
-        double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
-        double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
-        double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
-        double ignition_time = distance_between_centers / total_spread_rate; //distance pr. rate - fx meter pr. min.
 
-        status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
-        return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step
+        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction);
+
+        if (base_rate_of_spread > 0.0) { //if the base rate was 0 due to moisture extinction do not calculate onwards
+            double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction);
+            double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction);
+            double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor);
+            double ignition_time = distance_between_centers / total_spread_rate; //Time to ignition calculated
+
+            status_update = TIME_STEP / ignition_time; //Ratio of progress to ignition (0 no progress, 1 ignited)
+            return status_update;
+        }
     }
-    else {
-        return 0.0;
+    else return 0.0; //if neighbor is not burning, no progress was made toward ignition
+}
+
+int is_diagonal(const int direction) {
+    if (direction % 2 == 1) { //if the int % 2 == 1, it is an odd.
+        return TRUE;
     }
+    else return FALSE;
 }
 
 int get_neighbor_index(const map_t* map, const int i, const int j, const int direction) {
@@ -213,16 +220,8 @@ double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
     return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
-
-    //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
-    //k = retning - vi vil gerne beregne for denne
-    //den faktiske vindretning
-    //hvis den er negativ, dvs. vind ikke blæser i den retning = 0
-    //hastighed som er komponenten af vinden - matematisk funktion - max(0,f(kom)) <- tager maksimale værdi mellem 2. Hvis den højre er positiv, så vælger den den. Hvis den er negativ, så vælger den 0
-
-    //R = R_0 * (1 + theta_wind_1 i + slope factor_1 y)
-    //return max(0,f(kom)); //f(kom) er beregningsresultatet - theta wind (wind factor)
 }
+
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
         return TL1_WIND_SCALING_RATIO;
@@ -236,14 +235,14 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
 }
 
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) {
-    double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
     int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
+    double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     double elevation_of_neighbor_cell = map->map[neighbor_index].topography;
+
     double distance_between_centers = CELL_WIDTH;
-    if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {
-        distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
-        //The actual distance from center of cell to center of cell is larger by the square root of two ratio
+    if (is_diagonal(neighbor_direction.direction_from_neighbor_int) ) {//Odd direction int values are diagonals
+        distance_between_centers *= SQRT_OF_2;                         //diagonals are further apart by *= sqrt(2)
     }
     double C_slope = get_slope_scaling_for_fuel_model(map, i, j);
 
@@ -277,7 +276,7 @@ void update_timekeeper(int input_time, int* all_time) {
     printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
 }
 
-void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
+/*void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
     double directions_rates[DIRECTIONS_AMOUNT];
     double largest_rate = 0.0;
 
@@ -292,4 +291,4 @@ void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int
         }
     }
     map->temp_map[i * map->size_of_map + j].status += largest_rate;
-}
+}*/

@@ -1,6 +1,6 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
-#include "functions.h"
+#include "input-output.h"
 #include "../visualizer/visualizer.h"
 
 #define TIME_STEP 5 //TODO play around with smaller timesteps?
@@ -27,7 +27,6 @@ typedef struct direction_from_neighbor_t {
 
 void   sim_loop(map_t* map, Weather_t* w);
 void   calculate_new_status(map_t* map, Weather_t* w, int i, int j);
-double get_neighbor_status(const map_t* map, int i, int j, int direction);
 void   input_time_or_exit(int* input_time);
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
 double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor);
@@ -37,13 +36,13 @@ double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j);
 double calculate_slope_factor(map_t* map, int i, int j, direction_t direction_from_neighbor);
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j);
-double get_neighbour_elevation(map_t* map, int i, int j, direction_t direction_from_neighbor);
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor);
 int    convert_input_to_time(int* input_time);
 int    get_neighbor_index(const map_t* map, int i, int j, int direction);
+int    is_diagonal(int direction);
 void   update_timekeeper(int input_time, int* all_time);
 
 
 
-void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j); //alternative logic to demonstrate
+//void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j); //alternative logic to demonstrate
 #endif //SIMULATION_H

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "functions.h"
+#include "input-output.h"
 #include "simulation.h"
 #include "visualizer.h"
 
