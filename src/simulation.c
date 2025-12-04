@@ -252,7 +252,7 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
 }
 
 /**
- * Finding the typography and the elevation found in neighbor cells to find the topography
+ * Finding the topography and the elevation found in neighbor cells to find the topography
  * @return
  */
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) {
