@@ -3,30 +3,27 @@
 #include <string.h>
 #include "simulation.h"
 #include "visualizer.h"
-
-// Definerer størrelsen af hver celle i pixels (f.eks. 4x4)
-#define CELL_SIZE_PIXELS 4
+#define CELL_SIZE_PIXELS 3
 
 /**
- * @brief Omdanner statusdata til en CSS farvekode.
- * @param cell Cellens data.
- * @return En statisk streng med CSS farvekoden.
+ * @brief Convert the status data into a CSS colorcode.
+ * @param cell Cell data.
+ * @return A static string with CSS color code.
  */
 static const char* get_color_from_cell(cell_t cell) {
-    // Bemærk: Du kan forfine disse farver for bedre visualisering
     if (cell.status >= 1.0) {
-        return "#FF0000"; // Rød
+        return "#FF0000"; // Red (Ignited)
     } else if (strcmp(cell.fuel, "TL1") == 0 || strcmp(cell.fuel, "TU1") == 0) {
-        return "#009632"; // Grøn (Brændbar)
+        return "#009632"; // Green (can be ignited) //TODO Dark green for TL1? So we can make mixed maps
     } else {
-        return "#323296"; // Blå (Ikke-brændbar, f.eks. Vand)
+        return "#323296"; // Blue: not burnable (no fuel model match) //TODO Add a river &/or bare grounds in one map??
     }
 }
 
 /**
- * @brief Skriver indholdet af kortet til et HTML-dokument.
- * * @param map Pointer til kortstrukturen.
- * @param filename Navnet på filen, f.eks. "fire_frame_1.html".
+ * @brief Writing the content of the map into a HTML-document.
+ * * @param map Pointer for the structure of the map.
+ * @param filename The name on the file ex. "fire_frame_1.html".
  */
 void write_map_to_html(map_t* map, const char* filename) {
     FILE* fp;
@@ -34,11 +31,11 @@ void write_map_to_html(map_t* map, const char* filename) {
 
     fp = fopen(filename, "w");
     if (!fp) {
-        perror("Fejl: Kunne ikke oprette HTML-filen");
+        perror("Error: could not write the HTML file\n");
         return;
     }
 
-    // --- 1. Skriv HTML Header og CSS Stil ---
+    // Writing HTML Header and CSS style
     fprintf(fp, "<!DOCTYPE html>\n");
     fprintf(fp, "<html>\n");
     fprintf(fp, "<head>\n");
@@ -46,7 +43,8 @@ void write_map_to_html(map_t* map, const char* filename) {
     fprintf(fp, "<style>\n");
     fprintf(fp, "body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; font-family: sans-serif; }\n");
     fprintf(fp, ".grid-container { \n");
-    // Definer grid layoutet til at matche kortets dimensioner
+
+    // Defines the grid layout in order to match the dimensions of the map.
     fprintf(fp, "  display: grid;\n");
     fprintf(fp, "  grid-template-columns: repeat(%d, %dpx);\n", size, CELL_SIZE_PIXELS);
     fprintf(fp, "  grid-template-rows: repeat(%d, %dpx);\n", size, CELL_SIZE_PIXELS);
@@ -58,10 +56,9 @@ void write_map_to_html(map_t* map, const char* filename) {
     fprintf(fp, "</head>\n");
     fprintf(fp, "<body>\n");
 
-    // --- 2. Skriv Grid Container ---
     fprintf(fp, "<div class=\"grid-container\">\n");
 
-    // --- 3. Iterer over hver celle og skriv HTML element ---
+    //Making iterations over each cell and writing HTML element
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
             cell_t cell = map->map[i * size + j];
@@ -69,25 +66,22 @@ void write_map_to_html(map_t* map, const char* filename) {
             if (i == map->size_of_map / 2 && j == map->size_of_map / 2) {
                 color = "#000000";
             }
-
-            // Generer et <div> element for hver celle med den korrekte baggrundsfarve
             fprintf(fp, "<div class=\"cell\" style=\"background-color: %s;\"></div>\n", color);
         }
     }
 
     fprintf(fp, "</div>\n");
 
-    // Valgfri: Tilføj lidt info om rammen
     fprintf(fp, "<div class=\"info-box\">\n");
-    fprintf(fp, "<h2></h2>\n");
-    fprintf(fp, "<p>Grid size: %d x %d</p>\n", size, size);
-    fprintf(fp, "<p>Cell pixels size: %dpx</p>\n", CELL_SIZE_PIXELS);
+    fprintf(fp, "<h2>Overview</h2>\n");
+    fprintf(fp, "<p>Cells size of grid: %d x %d</p>\n", size, size);
+    fprintf(fp, "<p>Cell pixels: %dpx</p>\n", CELL_SIZE_PIXELS);
     fprintf(fp, "</div>\n");
 
-    // --- 4. Afslut HTML ---
+    //This ends HTML
     fprintf(fp, "</body>\n");
     fprintf(fp, "</html>\n");
 
     fclose(fp);
-    printf("HTML filen '%s' with %dx%d cells are written and ready to open.\n", filename, size, size);
+    printf("HTML file '%s' with %dx%d cells is ready to open in browser.\n", filename, size, size);
 }

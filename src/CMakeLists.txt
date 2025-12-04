@@ -1,7 +1,7 @@
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})  # Place programs in root folder when compiled.
 
-# 1. Definer 'functions-c' biblioteket (indeholder kun functions.c)
-add_library(functions-c functions.c)
+# 1. Definer 'functions-c' biblioteket (indeholder kun input-output.c)
+add_library(functions-c input-output.c)
 target_include_directories(functions-c PUBLIC .)
 target_link_libraries(functions-c m)  # Linker matematikbiblioteket
 

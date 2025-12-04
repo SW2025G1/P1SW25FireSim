@@ -1,9 +1,6 @@
 #include <math.h>
-#include "functions.h"
-
+#include "input-output.h"
 #include "simulation.h"
-
-
 /**
  * @return the file entered by the user or print error if the file is not successfully reached
  */
@@ -12,11 +9,13 @@ FILE* get_file_path_from_user() {
     FILE *fptr;
     do {
         printf("Enter absolute or relative filepath to selected map scenario\n");
-        printf("Suggested input:   src/Data_txt   \n>");
+        printf("For inputs: see maps/\n"
+               "format: maps/\"FUEL_MODEL_ID\"\"SIZExSIZE\".txt \n"
+               "Example input: maps/TL1_36x36.txt\n >");
         scanf(" %255s", filsti);
 
         fptr = fopen(filsti, "r");
-        //tilføjer tjek for, at se om filen åbnes korrekt
+        //Adding af check to see if the files is opening up correctly
         if (fptr == NULL) {
             printf("The filepath %s did not result in successful file open\n", filsti);
         }
@@ -40,7 +39,7 @@ void get_size_of_map(FILE *fptr, map_t* map) {
 }
 
 /**
- * A support function to allocate the memory of the decided upon size of map
+ * A support function to allocate the memory of the decided upon size of map. Used twice (map->map and map->temp_map)
 */
 cell_t* initialize_map_helper (cell_t* map_ptr, map_t* map) {
     map_ptr = malloc((size_t)map->size_of_map * map->size_of_map * sizeof(cell_t));
@@ -61,7 +60,8 @@ void initialize_map(map_t* map) {
 }
 
 /**
- * @param This function sets the cell to burning if its status value is = 1
+ * @brief This function 'ignites' the center cell of the map
+ * @param map The data struct map is received to find and manipulate the center cell.
  */
 void initial_burning_cell(map_t* map) {
     int i = map->size_of_map / 2;
@@ -72,8 +72,8 @@ void initial_burning_cell(map_t* map) {
 /**
  * importing data from the datafile to their designated places in the struct in each cell
  * @param fptr used to read from file
- * @param map is the struct in which the data is to go to
- * We end this function by putting these values to initialize wheater or not the cell is burning
+ * @param map is the struct in which the data is file scanned to.
+ * End by initial_burning_cell to ignite the center cell
  */
 void get_data_from_file(FILE *fptr, map_t* map) {
     for (int i = 0; i < map->size_of_map; i++) {
@@ -93,14 +93,12 @@ void get_data_from_file(FILE *fptr, map_t* map) {
  * @param map Is here since we have to use size_of_map to get the size from the dataset found in the function get_size_of_map
  */
 
-void print_grid(map_t* map){
-
+void print_grid(map_t* map) {
     if (map->size_of_map > 36) {
         printf("Map size extends beyond the terminal capabilities. Will not print in terminal. \n"
                "You can see the output in the html file in the /output folder.\n\n Continuing simulation...\n\n");
         return;
     }
-
 
     int mid = map->size_of_map / 2;
 
@@ -130,7 +128,7 @@ void print_grid(map_t* map){
 }
 
 /**
- * Here we free the memory that where allocated earlier in the map struct
+ * Here we free the memory that where allocated with the initialize_map function
  * @param map
  */
 void free_memory(map_t* map) {
@@ -188,10 +186,8 @@ void debug_print(map_t* map) { //TODO: perhaps separate debugging and the enable
         }
     }
 }
-
-
 /**
- * This function activates ANSI-codes on Windows consoles
+ * This function activates ANSI-codes on Windows consoles. These are used for the color setting of the character blocks in the print_grid function.
  */
 void enable_ansi_codes() { // TODO SEE ABOVE
 #ifdef _WIN32
@@ -201,7 +197,7 @@ void enable_ansi_codes() { // TODO SEE ABOVE
     DWORD dwMode = 0;
     if (!GetConsoleMode(hOut, &dwMode)) return;
 
-    // ENABLE_VIRTUAL_TERMINAL_PROCESSING er flaget, der gør, at ANSI-koder virker
+    // ENABLE_VIRTUAL_TERMINAL_PROCESSING is the flag that enables ANSI codes to function
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
 #endif

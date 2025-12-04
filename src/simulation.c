@@ -2,10 +2,15 @@
 #include <math.h>
 #include <string.h>
 
-#include "functions.h"
+#include "input-output.h"
 
-void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality, so the user knows how long since time 0
-    char input_char = 'y';
+/**
+ * This is the simulation loop, where we in this specific function have a loop to generate each timestep of the simulation
+ * We also call the helper functions in order to gather all of the simulations parts of the program to this one called in main
+ * @param map
+ * @param w
+ */
+void sim_loop(map_t* map, Weather_t* w) {
     int input_time = 0;
     int all_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
@@ -14,18 +19,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
     const char *OUTPUT_DIR = "output";
 
     do {
-        input_time_or_exit(&input_char, &input_time);
+        input_time_or_exit(&input_time);
 
-        if (input_time != 0) { //if still 0, the user exited the program.
+        if (input_time != 0) {
             for (int k = TIME_STEP; k < input_time; k += TIME_STEP) {
-                for (int i = 1; i < map->size_of_map - 1; i++) { //i sættes til 1, fordi den springer over første kolonne
+                for (int i = 1; i < map->size_of_map - 1; i++) { //i is set to 1, to ensure that it skips the first column
                     for (int j = 1; j < map->size_of_map - 1; j++) {
                         calculate_new_status(map, w, i, j);
                     }
                 }
 
 
-                // Kopierer alle bytes fra map->temp_map data-område til map->map data-område.
+                //Copy all bytes from map->temp_map data area to map->map data area.
                 memcpy(map->map, map->temp_map, map_size_bytes);
             }
         }
@@ -34,21 +39,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
         simulation_run_count++;
 
         if (map->size_of_map >= 36) {
-            // Generer filnavnet og stien.
+            // Generate the file name and path
             char filename[256];
             char command[512];
 
-            // NY FILNAVNSLOGIK: frame_[antal_kørsler]_[samlet_tid_minutter].html
-            // Dette sikrer unikke navne og god sporing.
+            // NEW FILNAMELOGIC: frame_[antal_kørsler]_[samlet_tid_minutter].html
             sprintf(filename, "%s/frame_%04d_T%dmin.html",
                     OUTPUT_DIR,
                     simulation_run_count,
-                    all_time); // Bruger total tid
+                    all_time);
 
-            // Bruger 'map' som er den aktuelle kort-pointer
             write_map_to_html(map, filename);
 
-            // Åbn filen i standard browser
             char *open_command = NULL;
 
             #if defined(_WIN32) || defined(_WIN64)
@@ -64,31 +66,18 @@ void sim_loop(map_t* map, Weather_t* w) { //TODO: add a timekeeper functionality
                 if (system(command) != 0) {
                     printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
                 }
-            } else {
-                printf("Warning, OS not identified, open %s manually from output dir.\n", filename);
             }
-
             printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
                    input_time, all_time);
         }
 
     } while (input_time != 0);
-   //ind i simulationsloopet - køres (ydre loop)
-    //Brugeren bestemmer, hvor lang simulationen skal kører /time, dage, ??? (starter med én fast tid/valgmuligehed (1 time))
-
-    //Det indre loop
-    //Udregning pr. celle om cellen er gået i brand - ny status
-    //akummulere en status for hver beregning cyklus - skal bygge op til ny antendelse i næste kørsel af loop
-    //skal opdatere med naboernes spredningsratio i visse timesteps
-    //skal opdatere med mindre interval end brugeren har inputtet - da brænden speder sig hurtigere end én celle pr. time osv.
-    //vi sætter fast værdi (senere opdatering: skal også her opdatere timesteppets størrelse)
-
-    //Vi er ude i det ydre loop igen - Print grid + spørger brugeren om de vil fortsætte eller exit
 }
 
-void input_time_or_exit(char* input_char, int* input_time) {
-    int input = -1; // Denne variable bruges til midlertidigt at holde det valgte menupunkt
-    char buffer[100]; // Buffer til at læse hele input linjen
+/**
+ * This function is a helper to the simulation loop, where this adds the possibility for the user to decided on the amount time they wish for the simulation to run
+*/
+void input_time_or_exit(int* input_time) {
     do {
         printf("Welcome to the simulation. You are to make inputs for how long you wish the simulation run.\n"
           "Input 0: Exit the program.\n"
@@ -111,6 +100,9 @@ void input_time_or_exit(char* input_char, int* input_time) {
     *input_time = convert_input_to_time(input_time);
 }
 
+/**
+ * This converts the decided upon time picked by the user in the funtion above to a specific time we can then use to calculate
+*/
 int convert_input_to_time(int* input_time) {
     switch (*input_time) {
         case 1: return 10;
@@ -123,47 +115,60 @@ int convert_input_to_time(int* input_time) {
     }
 }
 
+/**
+ * This calculates the affect each neighbor has to the cell currently being calculated
+ */
 void calculate_new_status(map_t* map, Weather_t* w, int i, int j) {
-    //Fokuserer på én celle
-    //8 ting
-    //loop - kalder funktion der beregner fra specifik retning
-    //loop starter fra sydcelle
-    //sydrate
-    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
+    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //Angle we calculate is 0 as the starting point - we then ad one fourth to each time (thereby starting in: direction_from_neighbor: East)
         direction_t neighbor_direction;
         neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
         neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //nabocellernes bidrag til at tillægge statusværdi til cellen i temp_map
-    }
+
+        map->temp_map[i * map->size_of_map + j].status += status_calculator(map, w, i, j, neighbor_direction); //logic 1
+        }
 }
 
+/**
+ * This function also combine the helper functions returning either the updated status or 0 if the cell is still not calculated to be in a scenario where it is on fire
+ */
 double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t neighbor_direction) {
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
     int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
     double status_update = 0;
 
-    //if the neighbor cell to calculate spread from is not yet burning, no calculations should be done.
-    if (map->map[neighbor_index].status >= 1.0) {
+    if (map->map[neighbor_index].status >= 1.0) { //calculate spread if the neighbor is burning
         double distance_between_centers = CELL_WIDTH;
-        if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {//TODO: this should be a function call, as it is reused in slope function
-            distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
-            //The actual distance from center of cell to center of cell is larger by the square root of two ratio
+        if (is_diagonal(neighbor_direction.direction_from_neighbor_int) ) {//Odd direction int values are diagonals
+            distance_between_centers *= SQRT_OF_2;                         //diagonals are further apart by *= sqrt(2)
         }
 
-        double base_rate_of_spread = calculate_base_rate(map, w, i, j, neighbor_direction); //TODO: indsæt if statement //Hvis 0 så lad værd med at regne de næste
-        double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction); //denne wind_direction skal laves om til double - se kommentar i simulation.h
-        double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction); //elevation fra sig selv og fra k-retning
-        double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor); //funktion tager foregående calculations og samler
-        double ignition_time = distance_between_centers / total_spread_rate; //distance pr. rate - fx meter pr. min.
 
-        status_update = TIME_STEP / ignition_time;//Status is the value that tells whether the cell should be ignited in the timestep
-        return status_update;     //which accumulates in the cell value over time steps and between directions of spread to the cell calculated in the same time step
+        double base_rate_of_spread = calculate_base_rate(map, w, i, j);
+
+        if (base_rate_of_spread > 0.0) { //if the base rate was 0 due to moisture extinction do not calculate onwards
+            double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction);
+            double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction);
+            double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor);
+            double ignition_time = distance_between_centers / total_spread_rate; //Time to ignition calculated
+
+            status_update = TIME_STEP / ignition_time; //Ratio of progress to ignition (0 no progress, 1 ignited)
+            return status_update;
+        }
     }
-    else {
-        return 0.0;
-    }
+    else return 0.0; //if neighbor is not burning, no progress was made toward ignition
 }
 
+int is_diagonal(const int direction) {
+    if (direction % 2 == 1) { //if the int % 2 == 1, it is an odd.
+        return TRUE;
+    }
+    else return FALSE;
+}
+
+/**
+ * This function calculates what each direction is in order to use it for the calculation of each neighbor as seen just above
+ * @return is the EXIT_FAILURE
+ */
 int get_neighbor_index(const map_t* map, const int i, const int j, const int direction) {
     switch (direction) {
         case East:      return i * map->size_of_map + (j + 1);
@@ -181,8 +186,11 @@ int get_neighbor_index(const map_t* map, const int i, const int j, const int dir
     }
 }
 
-double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t direction_from_neighbor) {
-    //tage base rate - funktionen skal bruge fuel model id og moisture fra weather
+/**
+ * This takes the Base rate calculation and find it in the simplified version studied in the repport
+ * The function needs fuel model id and moisture fra weather
+*/
+double calculate_base_rate(map_t* map, Weather_t* w, int i, int j) {
     double extinction_moisture_of_cell; //set to safe value in case assigning values fails in below.
     double base_base_rate; //The base rate not modified for moisture
     update_base_rate_values(map, &base_base_rate, &extinction_moisture_of_cell, i, j);
@@ -190,10 +198,16 @@ double calculate_base_rate(map_t* map, Weather_t* w, int i, int j, direction_t d
     return base_base_rate * (1 - (w->moisture_of_fuel / extinction_moisture_of_cell));
 }
 
+/**
+ * This calculates the total spread rate as found simplified and accounted for in the repport
+*/
 double calculate_total_spread_rate(double base_rate_of_spread, double wind_factor, double slope_factor) {
     return base_rate_of_spread * (1 + wind_factor + slope_factor);
 }
 
+/**
+ * The function below takes the calculated base rate and further calculates for the two scenarios TL1 and TU1
+ */
 void update_base_rate_values(map_t* map, double* base_base_rate, double* extinction_moisture_of_cell, int i, int j) {
     if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
         *extinction_moisture_of_cell = TL1_MOISTURE_EXTINCTION;
@@ -209,20 +223,22 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
     }
 }
 
+/**
+ * Calculating the wind factor to find how fast the fire spread i the decided upon direction
+ * K = the direction we want to calculate
+ * @return  fmax() = which takes the maximal value between two scenarios - If the right hand side is positive = this is the chosen one, but if it is negativ then = 0
+ */
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
 
     return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
-
-    //hvor meget bidrager vinden til at den spreder sig hurtigerre i den angivne retning
-    //k = retning - vi vil gerne beregne for denne
-    //den faktiske vindretning
-    //hvis den er negativ, dvs. vind ikke blæser i den retning = 0
-    //hastighed som er komponenten af vinden - matematisk funktion - max(0,f(kom)) <- tager maksimale værdi mellem 2. Hvis den højre er positiv, så vælger den den. Hvis den er negativ, så vælger den 0
-
-    //R = R_0 * (1 + theta_wind_1 i + slope factor_1 y)
-    //return max(0,f(kom)); //f(kom) er beregningsresultatet - theta wind (wind factor)
 }
+
+
+/**
+ * This checks the fuel model ID in current cell
+ * @return wind scaling ratio for the corresponding fuel model
+ */
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
         return TL1_WIND_SCALING_RATIO;
@@ -235,15 +251,19 @@ double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
     }
 }
 
+/**
+ * Finding the topography and the elevation found in neighbor cells to find the topography
+ * @return
+ */
 double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_direction) {
-    double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     int neighbor_dir = neighbor_direction.direction_from_neighbor_int;
     int neighbor_index = get_neighbor_index(map, i, j, neighbor_dir);
+    double elevation_of_current_cell = map->map[i * map->size_of_map + j].topography;
     double elevation_of_neighbor_cell = map->map[neighbor_index].topography;
+
     double distance_between_centers = CELL_WIDTH;
-    if (neighbor_direction.direction_from_neighbor_int % 2 == 1) {
-        distance_between_centers *= SQRT_OF_2;    //If the direction integer value is odd, it must be one of the diagonals. Therefore
-        //The actual distance from center of cell to center of cell is larger by the square root of two ratio
+    if (is_diagonal(neighbor_direction.direction_from_neighbor_int) ) {//Odd direction int values are diagonals
+        distance_between_centers *= SQRT_OF_2;                         //diagonals are further apart by *= sqrt(2)
     }
     double C_slope = get_slope_scaling_for_fuel_model(map, i, j);
 
@@ -265,6 +285,10 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     return slope_factor;
 }
 
+/**
+ * This checks the fuel ID for the current cell
+ * @return slope scaling ratio for the corresponding fuel model
+*/
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
             return TL1_SLOPE_SCALING_RATIO;
@@ -277,6 +301,9 @@ double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
         }
 }
 
+/**
+ * This function checks the time spent when the program is run and updates the user
+*/
 void update_timekeeper(int input_time, int* all_time) {
     *all_time += input_time;
     int total = *all_time;
@@ -288,3 +315,27 @@ void update_timekeeper(int input_time, int* all_time) {
     int minutes = total % 60;
     printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
 }
+
+/*void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
+
+//=====================EXTRA=======================
+/**
+ * Alternative function for the calculation of the new status logic*/
+ /*
+
+void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
+    double directions_rates[DIRECTIONS_AMOUNT];
+    double largest_rate = 0.0;
+
+    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
+        direction_t neighbor_direction;
+        neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
+        neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
+        directions_rates [direction] = status_calculator(map, w, i, j, neighbor_direction);
+
+        if (directions_rates[direction] > largest_rate) {
+            largest_rate = directions_rates[direction];
+        }
+    }
+    map->temp_map[i * map->size_of_map + j].status += largest_rate;
+}*/

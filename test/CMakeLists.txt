@@ -1,5 +1,5 @@
 # Let us add unit testing for the example library
-add_executable(test_functions test_functions.c ../src/functions.c)
+add_executable(test_functions test_functions.c ../src/input-output.c)
 
 # adding simulation testing
 add_executable(test_simulations test_simulations.c ../src/simulation.c
