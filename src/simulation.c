@@ -1,6 +1,7 @@
 #include "simulation.h"
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 #include "input-output.h"
 
@@ -16,104 +17,37 @@ void sim_loop(map_t* map, Weather_t* w) {
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
     memcpy(map->temp_map, map->map, map_size_bytes);
     int simulation_run_count = 0;
-    const char *OUTPUT_DIR = "output";
+
 
     do {
         input_time_or_exit(&input_time);
+        clock_t begin = clock();
 
         if (input_time != 0) {
-            for (int k = TIME_STEP; k < input_time; k += TIME_STEP) {
-                for (int i = 1; i < map->size_of_map - 1; i++) { //i is set to 1, to ensure that it skips the first column
+            for (double k = TIME_STEP; k < input_time; k += TIME_STEP) {
+                print_progress(k, input_time);
+                for (int i = 1; i < map->size_of_map - 1; i++) { //i is initialized 1, to ensure that it skips the first column
                     for (int j = 1; j < map->size_of_map - 1; j++) {
                         calculate_new_status(map, w, i, j);
                     }
                 }
-
-
-                //Copy all bytes from map->temp_map data area to map->map data area.
+                //Copy all bytes from map->temp_map data area to map->map data area for each time step
                 memcpy(map->map, map->temp_map, map_size_bytes);
             }
         }
+
+        double time_spent = runtime_end(begin);
         print_grid(map);
         update_timekeeper(input_time, &all_time);
         simulation_run_count++;
 
-        if (map->size_of_map >= 36) {
-            // Generate the file name and path
-            char filename[256];
-            char command[512];
-
-            // NEW FILNAMELOGIC: frame_[antal_kørsler]_[samlet_tid_minutter].html
-            sprintf(filename, "%s/frame_%04d_T%dmin.html",
-                    OUTPUT_DIR,
-                    simulation_run_count,
-                    all_time);
-
-            write_map_to_html(map, filename);
-
-            char *open_command = NULL;
-
-            #if defined(_WIN32) || defined(_WIN64)
-                        open_command = "start";
-            #elif defined(__APPLE__)
-                        open_command = "open";
-            #elif defined(__linux__)
-                        open_command = "xdg-open";
-            #endif
-
-            if (open_command) {
-                sprintf(command, "%s %s", open_command, filename);
-                if (system(command) != 0) {
-                    printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
-                }
-            }
-            printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
-                   input_time, all_time);
+        if (map->size_of_map >= 36) { //If the map size is too large to display nicely in terminal output, write html
+            output_and_open_html(simulation_run_count,  map, time_spent, input_time, all_time);
         }
 
     } while (input_time != 0);
 }
 
-/**
- * This function is a helper to the simulation loop, where this adds the possibility for the user to decided on the amount time they wish for the simulation to run
-*/
-void input_time_or_exit(int* input_time) {
-    do {
-        printf("Welcome to the simulation. You are to make inputs for how long you wish the simulation run.\n"
-          "Input 0: Exit the program.\n"
-          "Input 1: Run simulation for 10 minutes\n"
-          "Input 2: Run simulation for 30 minutes\n"
-          "Input 3: Run simulation for 60 minutes\n"
-          "Input 4: Run simulation for 3 hours\n"
-          "Input 5: Run simulation for 12 hours\n"
-          "Input 6: Run simulation for 24 hours\n"
-          );
-        scanf(" %d", input_time);
-        printf("entered input= %d\n"
-               "Running sims\n\n",*input_time);
-
-        if (*input_time < 0 || *input_time > 6) {
-            printf("Wrong. (0-6 please).\n");
-        }
-    } while (*input_time < 0 || *input_time > 6);
-
-    *input_time = convert_input_to_time(input_time);
-}
-
-/**
- * This converts the decided upon time picked by the user in the funtion above to a specific time we can then use to calculate
-*/
-int convert_input_to_time(int* input_time) {
-    switch (*input_time) {
-        case 1: return 10;
-        case 2: return 30;
-        case 3: return 60;
-        case 4: return 180;
-        case 5: return 720;
-        case 6: return 1440;
-        default: return 0;
-    }
-}
 
 /**
  * This calculates the affect each neighbor has to the cell currently being calculated
@@ -152,8 +86,8 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
             double ignition_time = distance_between_centers / total_spread_rate; //Time to ignition calculated
 
             status_update = TIME_STEP / ignition_time; //Ratio of progress to ignition (0 no progress, 1 ignited)
-            return status_update;
         }
+        return status_update;
     }
     else return 0.0; //if neighbor is not burning, no progress was made toward ignition
 }
@@ -301,29 +235,12 @@ void update_timekeeper(int input_time, int* all_time) {
 
     int hours   = total / 60;
     int minutes = total % 60;
-    printf("total time gone by D:%d H:%d M:%d \n", days, hours, minutes);
+    printf("\nTotal time gone by D:%d H:%d M:%d\n", days, hours, minutes);
 }
 
-/*void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
-
-//=====================EXTRA=======================
-/**
- * Alternative function for the calculation of the new status logic*/
- /*
-
-void calculate_new_status_alternative_logic(map_t* map, Weather_t* w, int i, int j) {
-    double directions_rates[DIRECTIONS_AMOUNT];
-    double largest_rate = 0.0;
-
-    for (int direction = East; direction < DIRECTIONS_AMOUNT; direction ++) { //vinkel vi beregner på er 0 til start - lægger pi fjerdedel til pr gang (starter altså med direction_from_neighbor: East)
-        direction_t neighbor_direction;
-        neighbor_direction.direction_from_neighbor_int = direction;     //The enum type corresponds to the integer values 0-7 from 0: East to 7: SouthEast
-        neighbor_direction.direction_from_neighbor_radians = direction * (M_PI / 4); //These enum types match the actual radians conversions by this operation
-        directions_rates [direction] = status_calculator(map, w, i, j, neighbor_direction);
-
-        if (directions_rates[direction] > largest_rate) {
-            largest_rate = directions_rates[direction];
-        }
-    }
-    map->temp_map[i * map->size_of_map + j].status += largest_rate;
-}*/
+double runtime_end(clock_t begin) {
+    clock_t end = clock();
+    double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("\n\nThe runtime for this sim_loop iteration was: %.2lf",time_spent);
+    return time_spent;
+}

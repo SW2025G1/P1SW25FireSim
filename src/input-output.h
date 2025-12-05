@@ -1,16 +1,9 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
-#define MAX_FORECAST_HOURS 72
-#define MAX_MAP_SIZE 1000
-
-// Colors for fire status:
-#define RED_BG    "\033[41m"    // Red background for burnt (Status >= 1.0)
-#define GREEN_BG  "\033[42m"    // Green is for not burning (Status == 0.0)
-#define YELLOW_BG "\033[43m"    // Yellow is for currently burning (0.0 < Status < 1.0)
-#define RESET     "\033[0m"     // IMPORTANT: This resets the color and background back to the standard setting
-
+#include "constants-and-enum.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> // for usleep in the progress bar function
 
 #ifdef _WIN32
 #include <windows.h>
@@ -45,24 +38,18 @@ typedef struct Weather_t {
     double wind_direction_radians;
 } Weather_t;
 
-void enable_ansi_codes();
+void enable_ansi_codes(void);
 
-FILE* get_file_path_from_user();
+FILE* get_file_path_from_user(void);
 void initialize_map(map_t* map);
 void get_size_of_map(FILE *fptr, map_t* map);
 void get_data_from_file(FILE *fptr, map_t* map);
 void print_grid(map_t* map);
 void debug_print(map_t* map);
 void free_memory(map_t* map);
-Weather_t weather_input_from_user();
+Weather_t weather_input_from_user(void);
 void initial_burning_cell(map_t* map);
+void input_time_or_exit(int* input_time);
+void print_progress(double k,  int input_time);
 
-/**
- *Possible struct
-*/
-/*typedef struct global_params_t {
-    double wind_speed_forecast[MAX_FORECAST_HOURS];
-    double wind_direction_forecast[MAX_FORECAST_HOURS];
-    double moisture_of_fuel;
-}global_params_t;*/
 #endif

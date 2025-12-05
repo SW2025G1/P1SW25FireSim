@@ -1,10 +1,11 @@
 #include <math.h>
 #include "input-output.h"
 #include "simulation.h"
+#include "constants-and-enum.h"
 /**
  * @return the file entered by the user or print error if the file is not successfully reached
  */
-FILE* get_file_path_from_user() {
+FILE* get_file_path_from_user(void) {
     char filsti[256];
     FILE *fptr;
     do {
@@ -24,9 +25,10 @@ FILE* get_file_path_from_user() {
 }
 
 /**
- * @param fptr is used to read the top line only in the dataset to read the size of map
+ * @param fptr  is used to read the top line only in the dataset to read the size of map
  * @param map we then use the struct to initialize and get a 2D print of the grid.
  */
+
 void get_size_of_map(FILE *fptr, map_t* map) {
     fscanf(fptr, "%d", &map->size_of_map);
     if (map->size_of_map < 1 || map->size_of_map > MAX_MAP_SIZE) {
@@ -94,6 +96,8 @@ void get_data_from_file(FILE *fptr, map_t* map) {
  */
 
 void print_grid(map_t* map) {
+    printf("\n");
+
     if (map->size_of_map > 36) {
         printf("Map size extends beyond the terminal capabilities. Will not print in terminal. \n"
                "You can see the output in the html file in the /output folder.\n\n Continuing simulation...\n\n");
@@ -128,27 +132,33 @@ void print_grid(map_t* map) {
 }
 
 /**
- * Here we free the memory that where allocated with the initialize_map function
- * @param map
+ * @brief This function prints a progress bar in the terminal, so the user knows the simulation is running, even when runtime is long.
+ * @param k The current time step in the sim_loop. Needed to calculate the progress for the print
+ * @param input_time The user input time to simulate in sim_loop. Used to calculate the progress and times to run the sim_loop loop
  */
-void free_memory(map_t* map) {
-    if (map == NULL) return;
+void print_progress(double k,  int input_time) {
+    int times_to_run = (int)(input_time / TIME_STEP);
+    if (times_to_run <= 0) return; //if user is exiting the program, do not print progress bar
 
-    printf("Freeing memory\n");
-    free(map->map);
-    map->map = NULL;
+    double progress_percent = (k / input_time) * 100.0;
+    int fill_count = (int)(progress_percent * BAR_WIDTH / 100.0);
 
-    free(map->temp_map);
-    map->temp_map = NULL;
-
-    free(map);
+    //Move the cursor to the start of the line to overwrite previous progress bar print.
+    printf("\r[");
+    //Print filled part of progress bar
+    for (int i = 0; i < fill_count; ++i) printf("#");
+    //Print empty part of progress bar
+    for (int j = 0; j < BAR_WIDTH - fill_count; ++j) printf(" ");
+    //Print end of progress bar message with info
+    printf("] %4.2lf%% of time steps run. Total steps = %d",progress_percent, times_to_run);
+    fflush(stdout); // Print immediately
 }
 
 /**
- * Via imput from the user, this function takes the values: moisture, wind_speed and wind_direction
+ * Via input from the user, this function takes the values: moisture, wind_speed and wind_direction
  * @return w which is the struct Weather
  */
-Weather_t weather_input_from_user() { //TODO perhaps make the weather scenario data files and reader functions and change all the functions to support dynamic weather (hourly wind changes). Then maybe give the user the option for manual or file decided weather inputs
+Weather_t weather_input_from_user(void) {
     Weather_t w;
 
     printf("\nEnter scenario conditions\n\n");
@@ -171,6 +181,45 @@ Weather_t weather_input_from_user() { //TODO perhaps make the weather scenario d
     }
 
 /**
+ * This function is a helper to the simulation loop, where this adds the possibility for the user to decided on the amount time they wish for the simulation to run
+*/
+void input_time_or_exit(int* input_time) {
+    do {
+        printf("\nSim loop start. You are to make inputs for how long you wish the simulation run.\n"
+          "Input 0: Exit the program.\n"
+          "Input 1: Run simulation for 10 minutes\n"
+          "Input 2: Run simulation for 30 minutes\n"
+          "Input 3: Run simulation for 60 minutes\n"
+          "Input 4: Run simulation for 3 hours\n"
+          "Input 5: Run simulation for 12 hours\n"
+          "Input 6: Run simulation for 24 hours\n"
+          );
+        scanf(" %d", input_time);
+        printf("entered input= %d. Running sims",*input_time);
+
+        if (*input_time < 0 || *input_time > 6) {
+            printf("Wrong. (0-6 please).\n");
+        }
+    } while (*input_time < 0 || *input_time > 6);
+
+    *input_time = convert_input_to_time(input_time);
+}
+
+/**
+ * This converts the decided upon time picked by the user in the funtion above to a specific time we can then use to calculate
+*/
+int convert_input_to_time(int* input_time) {
+    switch (*input_time) {
+        case 1: return 10;
+        case 2: return 30;
+        case 3: return 60;
+        case 4: return 180;
+        case 5: return 720;
+        case 6: return 1440;
+        default: return 0;
+    }
+}
+/**
  * This function is made as a debugging tool for the function: print_grid
  * @param map
  */
@@ -187,9 +236,25 @@ void debug_print(map_t* map) { //TODO: perhaps separate debugging and the enable
     }
 }
 /**
+ * Here we free the memory that where allocated with the initialize_map function
+ * @param map
+ */
+void free_memory(map_t* map) {
+    if (map == NULL) return;
+
+    printf("Freeing memory\n");
+    free(map->map);
+    map->map = NULL;
+
+    free(map->temp_map);
+    map->temp_map = NULL;
+
+    free(map);
+}
+/**
  * This function activates ANSI-codes on Windows consoles. These are used for the color setting of the character blocks in the print_grid function.
  */
-void enable_ansi_codes() { // TODO SEE ABOVE
+void enable_ansi_codes(void) {
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) return;

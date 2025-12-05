@@ -5,6 +5,45 @@
 #include "visualizer.h"
 #define CELL_SIZE_PIXELS 3
 
+void output_and_open_html(const int simulation_run_count,  map_t* map, const double time_spent, const int input_time, const int all_time) {
+    char filename[256];
+    const char *OUTPUT_DIR = "output";;
+    generate_html_file_name_and_path(filename, OUTPUT_DIR, simulation_run_count, all_time);
+    write_map_to_html(map, filename, time_spent);
+    open_html_map_sys_dependent(filename, input_time, all_time);
+}
+
+void generate_html_file_name_and_path(char *filename, const char *OUTPUT_DIR, int simulation_run_count, int all_time) {
+    //Format: frame_[antal_kørsler]_[samlet_tid_minutter].html
+    sprintf(filename, "%s/frame_%04d_T%dmin.html",
+            OUTPUT_DIR,
+            simulation_run_count,
+            all_time);
+}
+
+void open_html_map_sys_dependent(char* filename, const int input_time, const int all_time) {
+    char command[512];
+
+    char *open_command = NULL;
+
+#if defined(_WIN32) || defined(_WIN64)
+    open_command = "start";
+#elif defined(__APPLE__)
+    open_command = "open";
+#elif defined(__linux__)
+    open_command = "xdg-open";+
+#endif
+
+    if (open_command) {
+        sprintf(command, "%s %s", open_command, filename);
+        if (system(command) != 0) {
+            printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
+        }
+    }
+    printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
+           input_time, all_time);
+}
+
 /**
  * @brief Convert the status data into a CSS colorcode.
  * @param cell Cell data.
@@ -25,7 +64,7 @@ static const char* get_color_from_cell(cell_t cell) {
  * * @param map Pointer for the structure of the map.
  * @param filename The name on the file ex. "fire_frame_1.html".
  */
-void write_map_to_html(map_t* map, const char* filename) {
+void write_map_to_html(map_t* map, const char* filename, double time_spent) {
     FILE* fp;
     int size = map->size_of_map;
 
@@ -70,12 +109,20 @@ void write_map_to_html(map_t* map, const char* filename) {
         }
     }
 
-    fprintf(fp, "</div>\n");
 
+    // get fuel model from a cell
+    char fuel_model [4];
+    strcpy(fuel_model, map->map[1].fuel);
+
+    //info box print
+    fprintf(fp, "</div>\n");
     fprintf(fp, "<div class=\"info-box\">\n");
     fprintf(fp, "<h2>Overview</h2>\n");
     fprintf(fp, "<p>Cells size of grid: %d x %d</p>\n", size, size);
     fprintf(fp, "<p>Cell pixels: %dpx</p>\n", CELL_SIZE_PIXELS);
+    fprintf(fp, "<p>Fuel model selected: %s</p>\n", fuel_model);
+    fprintf(fp, "<p>Time step selected: %.2lf minutes</p>\n", TIME_STEP);
+    fprintf(fp, "<p>Run time for this sim loop : %.2lf seconds</p>\n", time_spent);
     fprintf(fp, "</div>\n");
 
     //This ends HTML
