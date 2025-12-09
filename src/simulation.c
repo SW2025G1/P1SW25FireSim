@@ -1,9 +1,4 @@
 #include "simulation.h"
-#include <math.h>
-#include <string.h>
-#include <time.h>
-#include <stdbool.h>
-
 #include "input-output.h"
 
 /**
@@ -148,9 +143,14 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
         *extinction_moisture_of_cell = TL1_MOISTURE_EXTINCTION;
         *base_base_rate = TL1_BASE_BASE_RATE;
 
-    } else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) {
+    }
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) {
         *extinction_moisture_of_cell = TU1_MOISTURE_EXTINCTION;
         *base_base_rate = TU1_BASE_BASE_RATE;
+    }
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "GR1") == 0) {
+        *extinction_moisture_of_cell = GR1_MOISTURE_EXTINCTION;
+        *base_base_rate = GR1_BASE_BASE_RATE;
     }
     else {
         printf("There was an error with identifying the fuel model for the cell! exiting...\n");
@@ -240,11 +240,9 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
  * @return slope scaling ratio for the corresponding fuel model
 */
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j) {
-        if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
-            return TL1_SLOPE_SCALING_RATIO;
-        } else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) {
-            return TU1_SLOPE_SCALING_RATIO;
-        }
+        if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0)      return TL1_SLOPE_SCALING_RATIO;
+        else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) return TU1_SLOPE_SCALING_RATIO;
+        else if (strcmp(map->map[i * map->size_of_map + j].fuel, "GR1") == 0) return GR1_SLOPE_SCALING_RATIO;
         else {
             printf("There was an error with identifying the fuel model for the cell! exiting...\n");
             exit (EXIT_FAILURE);

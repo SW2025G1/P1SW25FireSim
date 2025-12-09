@@ -2,6 +2,10 @@
 #define SIMULATION_H
 #include <time.h>
 #include <stdbool.h>
+#include <math.h>
+#include <string.h>
+#include <time.h>
+
 #include "input-output.h"
 #include "../visualizer/visualizer.h"
 

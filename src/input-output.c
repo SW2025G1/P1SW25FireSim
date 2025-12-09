@@ -10,10 +10,9 @@ FILE* get_file_path_from_user(void) {
     FILE *fptr;
     do {
         printf("Enter absolute or relative filepath to selected map scenario\n");
-        printf("For inputs: see maps/\n"
-               "format: maps/\"FUEL_MODEL_ID\"\"SIZExSIZE\".txt \n"
-               "Example input: maps/TL1_36x36.txt\n >");
-        scanf(" %255s", filsti);
+        printf("For input file names: please see maps/ folder in the file dir\n"
+               "Example input: maps/TL1_300x300.txt\n>\n");
+        scanf("%255s", filsti);
 
         fptr = fopen(filsti, "r");
         //Adding af check to see if the files is opening up correctly
@@ -191,16 +190,17 @@ void input_time_or_exit(int* input_time) {
           "Input 2: Run simulation for 30 minutes\n"
           "Input 3: Run simulation for 60 minutes\n"
           "Input 4: Run simulation for 3 hours\n"
-          "Input 5: Run simulation for 12 hours\n"
-          "Input 6: Run simulation for 24 hours\n"
+          "Input 5: Run simulation for 10 hours\n"
+          "Input 6: Run simulation for 12 hours\n"
+          "Input 7: Run simulation for 24 hours\n"
           );
         scanf(" %d", input_time);
         printf("entered input= %d. Running sims",*input_time);
 
-        if (*input_time < 0 || *input_time > 6) {
-            printf("Wrong. (0-6 please).\n");
+        if (*input_time < 0 || *input_time > 7) {
+            printf("Wrong. (0-7 please).\n");
         }
-    } while (*input_time < 0 || *input_time > 6);
+    } while (*input_time < 0 || *input_time > 7);
 
     *input_time = convert_input_to_time(input_time);
 }
@@ -214,8 +214,9 @@ int convert_input_to_time(int* input_time) {
         case 2: return 30;
         case 3: return 60;
         case 4: return 180;
-        case 5: return 720;
-        case 6: return 1440;
+        case 5: return 600;
+        case 6: return 720;
+        case 7: return 1440;
         default: return 0;
     }
 }
