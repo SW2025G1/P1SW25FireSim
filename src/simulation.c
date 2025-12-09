@@ -158,27 +158,42 @@ void update_base_rate_values(map_t* map, double* base_base_rate, double* extinct
 }
 
 /**
- * Calculating the wind factor to find how fast the fire spread i the decided upon direction
- * K = the direction we want to calculate
+*@brief  Calculating the wind factor to find how fast the fire spread from the neighbor cell (direction) to the current cell. Takes into account the maximum rate factor possible by the top off value wind speed by get_max_rate_for_fuel_model.
+ *
  * @return  fmax() = which takes the maximal value between two scenarios - If the right hand side is positive = this is the chosen one, but if it is negativ then = 0
  */
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t neighbor_direction) {
     double C_wind = get_wind_scaling_for_fuel_model(map, i, j);
+    double max_wind_speed_to_calculate = get_max_wind_speed_for_fuel_model(map, i, j);
+    double wind_speed_maxed = fmin(w->wind_speed, max_wind_speed_to_calculate);
+    double wind_factor = C_wind * wind_speed_maxed * cos(
+                             w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians);
 
-    return fmax(0, C_wind * w->wind_speed * cos(w->wind_direction_radians - neighbor_direction.direction_from_neighbor_radians) );
+    return fmax(0,  wind_factor);
 }
 
+/**
+ * @brief Checks the fuel model ID in the current cell and returns the maximal wind speed to calculate wind factor adjustment of the spread rate for. The max rates are constants derived from the litterature.
+ * @return the maximal wind speed corresponding to the current cell's fuel model id.
+ */
+double get_max_wind_speed_for_fuel_model(map_t* map, int i, int j) {
+    if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0)      return TL1_MAX_WIND_SPEED_CALC;
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) return TU1_MAX_WIND_SPEED_CALC;
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "GR1") == 0) return GR1_MAX_WIND_SPEED_CALC;
+    else {
+        printf("There was an error with identifying the fuel model for the cell! exiting...\n");
+        exit (EXIT_FAILURE);
+    }
+}
 
 /**
  * This checks the fuel model ID in current cell
  * @return wind scaling ratio for the corresponding fuel model
  */
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j) {
-    if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0) {
-        return TL1_WIND_SCALING_RATIO;
-    } else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) {
-        return TU1_WIND_SCALING_RATIO;
-    }
+    if (strcmp(map->map[i * map->size_of_map + j].fuel, "TL1") == 0)      return TL1_WIND_SCALING_RATIO;
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "TU1") == 0) return TU1_WIND_SCALING_RATIO;
+    else if (strcmp(map->map[i * map->size_of_map + j].fuel, "GR1") == 0) return GR1_WIND_SCALING_RATIO;
     else {
         printf("There was an error with identifying the fuel model for the cell! exiting...\n");
         exit (EXIT_FAILURE);
