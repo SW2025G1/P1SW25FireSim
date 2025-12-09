@@ -31,7 +31,7 @@ void open_html_map_sys_dependent(char* filename, const int input_time, const int
 #elif defined(__APPLE__)
     open_command = "open";
 #elif defined(__linux__)
-    open_command = "xdg-open";+
+    open_command = "xdg-open";
 #endif
 
     if (open_command) {
