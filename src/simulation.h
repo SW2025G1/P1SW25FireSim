@@ -1,6 +1,7 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 #include <time.h>
+#include <stdbool.h>
 #include "input-output.h"
 #include "../visualizer/visualizer.h"
 
@@ -20,6 +21,7 @@ double calculate_base_rate(map_t* map, Weather_t* w, int i, int j);
 void   update_base_rate_values(map_t* map, double* base_base_rate, double* extinction_moisture_of_cell, int i, int j);
 double direction_to_radians(int wind_direction);
 double calculate_wind_factor(map_t* map, int i, int j, Weather_t* w, direction_t direction_from_neighbor);
+double get_max_wind_speed_for_fuel_model(map_t* map, int i, int j);
 double get_wind_scaling_for_fuel_model(map_t* map, int i, int j);
 double calculate_slope_factor(map_t* map, int i, int j, direction_t direction_from_neighbor);
 double get_slope_scaling_for_fuel_model(map_t* map, int i, int j);
