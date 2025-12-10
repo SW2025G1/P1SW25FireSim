@@ -20,11 +20,11 @@ target_include_directories(visualizer PUBLIC ../visualizer .)
 
 
 # 4. Definer det eksekverbare program
-add_executable(main main.c)
+add_executable(P1-Fire-Simulator main.c)
 
-# 5. Link de nødvendige biblioteker til main.
-# Main har brug for simulation-c, som igen bruger input-output-c og visualizer.
-target_link_libraries(main
+# 5. Link de nødvendige biblioteker til P1-Fire_Simulator.
+# P1-Fire-Simulator har brug for simulation-c, som igen bruger input-output-c og visualizer.
+target_link_libraries(P1-Fire-Simulator
         PUBLIC
         simulation-c
         input-output-c
