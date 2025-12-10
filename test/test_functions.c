@@ -1,5 +1,5 @@
 #include "mtest.h"
-#include "../src/simulation.h"
+#include "../src/input-output.h"
 
 // Test the open file function
 
