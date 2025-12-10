@@ -11,7 +11,7 @@ FILE* get_file_path_from_user(void) {
     do {
         printf("Enter absolute or relative filepath to selected map scenario\n");
         printf("For input file names: please see maps/ folder in the file dir\n"
-               "Example input: maps/TL1_300x300.txt\n>\n");
+               "Example input: maps/TL1_300x300.txt\n\n>");
         scanf("%255s", filsti);
 
         fptr = fopen(filsti, "r");
