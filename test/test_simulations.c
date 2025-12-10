@@ -1,5 +1,5 @@
 #include "mtest.h"
-#include "simulation.h"
+#include "../src/simulation.h"
 
 // Test the open file function
 TEST_CASE(test, {
