@@ -15,4 +15,4 @@ TEST_CASE(example_fail, {
 })
 
 // Register your test cases to this macro:
-MAIN_RUN_TESTS(test)
+MAIN_RUN_TESTS(test, example_fail)
