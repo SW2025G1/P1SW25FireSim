@@ -1,4 +1,5 @@
 #include "simulation.h"
+#include "input-output.h"
 
 /**
  * This is the simulation loop, where we in this specific function have a loop to generate each timestep of the simulation
