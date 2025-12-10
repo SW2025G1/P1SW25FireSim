@@ -6,10 +6,10 @@ add_executable(test_simulations test_simulations.c ../src/simulation.c
         test_simulations.c)
 
 # We need to link both with the library we are testing and the mtest framework.
-target_link_libraries(test_functions example_library mtest)
+target_link_libraries(test_functions input-output-c mtest)
 
 #same but for simulations
-target_link_libraries(test_simulations example_library mtest)
+target_link_libraries(test_simulations simulation-c mtest)
 
 # Add test cases to CTest (our test framework has a nice macro for that).
 discover_tests(test_functions)

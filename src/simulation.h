@@ -1,7 +1,6 @@
 #ifndef SIMULATION_H
 #define SIMULATION_H
 #include <time.h>
-#include <stdbool.h>
 #include <math.h>
 #include <string.h>
 #include <time.h>

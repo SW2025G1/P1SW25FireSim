@@ -1,5 +1,4 @@
 #include "simulation.h"
-#include "input-output.h"
 
 /**
  * This is the simulation loop, where we in this specific function have a loop to generate each timestep of the simulation
@@ -90,9 +89,9 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
 
 int is_diagonal(const int direction) {
     if (direction % 2 == 1) { //if the int % 2 == 1, it is an odd.
-        return TRUE;
+        return 1;
     }
-    else return FALSE;
+    else return 0;
 }
 
 /**
