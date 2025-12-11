@@ -137,7 +137,6 @@ void print_grid(map_t* map) {
  */
 void print_progress(double k,  int input_time) {
     int times_to_run = (int)(input_time / TIME_STEP);
-    if (times_to_run <= 0) return; //if user is exiting the program, do not print progress bar
 
     double progress_percent = (k / input_time) * 100.0;
     int fill_count = (int)(progress_percent * BAR_WIDTH / 100.0);
