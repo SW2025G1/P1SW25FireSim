@@ -265,7 +265,7 @@ void update_timekeeper(int input_time, int* all_time) {
 }
 
 /**
- *This function shows the runtime, which helps
+ *This function shows the runtime, which helps to compare
  */
 double runtime_end(clock_t begin) {
     clock_t end = clock();
