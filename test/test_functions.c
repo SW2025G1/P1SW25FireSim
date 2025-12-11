@@ -12,37 +12,17 @@
 })*/ //open_data funktionen findes ikke længere. Hedder nu get_data_from_file.
 
 
-TEST_CASE(example_fail, {
-
-})
-
 
 //========tests for get_file_path_from_user funktionen======
-// TEST_CASE(get_file_path_from_user_test, {
-//     // Arrange
-//     FILE* expected = "maps/TL1_36x36.txt";
-//     // Act
-//     FILE* result = get_file_path_from_user();
-//     // Assert
-//     assert(result == expected);
-// })
-
-//======test get_size_of_map funktionen ===============
-TEST_CASE(get_size_of_map_test, {
-    // Arrange
-    // Act
-    // Assert
-})
-
-//=======test initialize_array funktionen ============
-TEST_CASE(initialize_array_test, {
-    // Arrange
-
-    // Act
-    // Assert
-})
-
+ TEST_CASE(get_file_path_from_user_test, {
+     // Arrange
+     FILE* expected = "maps/TL1_36x36.txt";
+     // Act
+     FILE* result = get_file_path_from_user();
+     // Assert
+     assert(result == expected);
+ })
 
 
 // Register your test cases to this macro:
-MAIN_RUN_TESTS(get_size_of_map_test, initialize_array_test, example_fail)
+MAIN_RUN_TESTS(get_file_path_from_user_test)

@@ -268,6 +268,9 @@ void update_timekeeper(int input_time, int* all_time) {
     printf("\nTotal time gone by D:%d H:%d M:%d\n", days, hours, minutes);
 }
 
+/**
+ *This function shows the runtime, which helps to compare
+ */
 double runtime_end(clock_t begin) {
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
