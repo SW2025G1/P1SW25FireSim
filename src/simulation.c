@@ -88,6 +88,10 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
     else return 0.0; //if neighbor is not burning, no progress was made toward ignition
 }
 
+/**
+ * @param direction The integer value for the direction from the neighbor cell to the current cell
+ * @return 1 is true, meaning if the direction is an odd integer, the direction is diagonal, else it is cardinal (0)
+ */
 int is_diagonal(const int direction) {
     if (direction % 2 == 1) { //if the int % 2 == 1, it is an odd.
         return 1;

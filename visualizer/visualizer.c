@@ -40,7 +40,7 @@ void open_html_map_sys_dependent(char* filename, const int input_time, const int
             printf("Warning, could not open syscommand. Open %s manually from output dir.\n", filename);
         }
     }
-    printf("Time run: %d minutes (Since initial ignition: %d minutes)\n",
+    printf("Time run: %d minutes (Since initial ignition: %d seconds)\n",
            input_time, all_time);
 }
 
