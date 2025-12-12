@@ -233,7 +233,7 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
         slope_factor = 5;
     }
     if (slope_factor <-1){
-    slope_factor = 1;
+    slope_factor = -1;
     }
 
     return slope_factor;
