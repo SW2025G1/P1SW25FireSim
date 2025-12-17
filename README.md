@@ -11,4 +11,4 @@ The program then runs a simulation loop which asks the user for time to be simul
 - Yellow = Cell which is progressing toward being ignited
 - Red = Cell which is ignited
 
-This program was developed as the product of a Software Engineering Semester 1 project.
+This program was developed as the product of a Software Engineering Semester 1 project. The program is not applicable to real-world firefigthing preventative or suppresive efforts.
