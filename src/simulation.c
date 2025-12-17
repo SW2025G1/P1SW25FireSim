@@ -79,9 +79,9 @@ double status_calculator(map_t* map, Weather_t* w, int i, int j, direction_t nei
             double wind_factor = calculate_wind_factor(map, i, j, w, neighbor_direction);
             double slope_factor = calculate_slope_factor(map, i, j, neighbor_direction);
             double total_spread_rate = calculate_total_spread_rate(base_rate_of_spread, wind_factor, slope_factor);
-            double ignition_time = distance_between_centers / total_spread_rate; //Time to ignition calculated
+            double ignition_rate = total_spread_rate / distance_between_centers; //Time to ignition calculated
 
-            status_update = TIME_STEP / ignition_time; //Ratio of progress to ignition (0 no progress, 1 ignited)
+            status_update = ignition_rate * TIME_STEP; //Ratio of progress to ignition (0 no progress, 1 ignited)
         }
         return status_update;
     }
@@ -224,19 +224,9 @@ double calculate_slope_factor(map_t* map, int i, int j, direction_t neighbor_dir
     double delta_topography = elevation_of_current_cell - elevation_of_neighbor_cell;   //Height difference between cells (unit: m)
     double phi_slope = delta_topography / distance_between_centers; //The rise/distance [run] ratio (slope, unitless)
 
-    // // Optional multiplier to make slope effect noticeable
-    // double SLOPE_MULTIPLIER = 8;
-
     double slope_factor = C_slope * phi_slope;
 
-    if (slope_factor > 5) {
-        slope_factor = 5;
-    }
-    if (slope_factor <-1){
-    slope_factor = 1;
-    }
-
-    return slope_factor;
+    return fmax(0, slope_factor);
 }
 
 /**

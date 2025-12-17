@@ -9,7 +9,7 @@
 
 //Optimization adjustables
 #define TIME_STEP 0.5
-#define CELL_WIDTH 10
+#define CELL_WIDTH 25
 
 //Symbolic constants
 #define DIRECTIONS_AMOUNT 8
