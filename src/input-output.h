@@ -38,7 +38,7 @@ typedef struct Weather_t {
     double wind_direction_radians;
 } Weather_t;
 
-void enable_ansi_codes(void);
+int enable_ansi_codes(void);
 
 FILE* get_file_path_from_user(void);
 void initialize_map(map_t* map);

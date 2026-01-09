@@ -8,7 +8,7 @@
 
 
 int main() {
-    enable_ansi_codes(); //For enabling background color of character field in the output terminal to output visual representation of cells in the program
+    int isWin32 = enable_ansi_codes(); //For enabling background color of character field in the output terminal to output visual representation of cells in the program
 
     FILE* file = get_file_path_from_user(); //Opens up data files in read mode
 
@@ -24,7 +24,7 @@ int main() {
 
     print_grid(&map);
 
-    sim_loop(&map, &w);             //Running the simulation part of the program, as a loop containing:
+    sim_loop(&map, &w, isWin32);             //Running the simulation part of the program, as a loop containing:
                                     //the duration of the simulation, how the spread of fire moves and prints the map of the cells status (fire or no fire)
     free_memory(&map);
     return EXIT_SUCCESS;

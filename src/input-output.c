@@ -149,7 +149,6 @@ void print_progress(double k,  int input_time) {
     for (int j = 0; j < BAR_WIDTH - fill_count; ++j) printf(" ");
     //Print end of progress bar message with info
     printf("] %4.2lf%% of time steps run. Total steps = %d",progress_percent, times_to_run);
-    fflush(stdout); // Print immediately
 }
 
 /**
@@ -254,7 +253,7 @@ void free_memory(map_t* map) {
 /**
  * This function activates ANSI-codes on Windows consoles. These are used for the color setting of the character blocks in the print_grid function.
  */
-void enable_ansi_codes(void) {
+int enable_ansi_codes(void) {
 #ifdef _WIN32
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) return;
@@ -265,5 +264,7 @@ void enable_ansi_codes(void) {
     // ENABLE_VIRTUAL_TERMINAL_PROCESSING is the flag that enables ANSI codes to function
     dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
     SetConsoleMode(hOut, dwMode);
+    return 1;
 #endif
+    return 0;
 }

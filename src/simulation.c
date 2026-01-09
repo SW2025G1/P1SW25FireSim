@@ -7,7 +7,7 @@
  * @param map
  * @param w
  */
-void sim_loop(map_t* map, Weather_t* w) {
+void sim_loop(map_t* map, Weather_t* w, int isWin32) {
     int input_time = 0;
     int all_time = 0;
     long long map_size_bytes = (long long)map->size_of_map * (long long)map->size_of_map * sizeof(cell_t);
@@ -19,25 +19,33 @@ void sim_loop(map_t* map, Weather_t* w) {
         input_time_or_exit(&input_time);
         clock_t begin = clock();
 
-        if (input_time != 0) {
+
+        if (input_time != 0) { // Only run the following code if user did not exit the program by 0 input
             for (double k = TIME_STEP; k < input_time; k += TIME_STEP) {
-                print_progress(k, input_time);
+                if ((int)k % 50 == 0) print_progress(k, input_time); //print progress bar every 50 time steps //CHANGE
+
                 for (int i = 1; i < map->size_of_map - 1; i++) { //i is initialized 1, to ensure that it skips the first column
                     for (int j = 1; j < map->size_of_map - 1; j++) {
-                        calculate_new_status(map, w, i, j);
+                        // if (map->map[i * map->size_of_map + j].status < 1)
+                        if (map->map[i * map->size_of_map + j].status < 1) calculate_new_status(map, w, i, j); //CHANGE
+                        //calculate status update, but only if cell not already burning (for performance optimization)
                     }
                 }
                 //Copy all bytes from map->temp_map data area to map->map data area for each time step
                 memcpy(map->map, map->temp_map, map_size_bytes);
             }
+
+            if (isWin32) system("cls"); //If in a windows terminal clear the screen
+            else system ("clear");      //Clear the screen
+
+            print_grid(map);
+            update_timekeeper(input_time, &all_time);
+            simulation_run_count++;
         }
 
-        double time_spent = runtime_end(begin);
-        print_grid(map);
-        update_timekeeper(input_time, &all_time);
-        simulation_run_count++;
+        double time_spent = runtime_end(begin); // end clock and display runtime for simulation iteration
 
-        if (map->size_of_map >= 36) { //If the map size is too large to display nicely in terminal output, write html
+        if (map->size_of_map > 36 && input_time != 0) { //If the map size is too large to display nicely in terminal output, write html
             output_and_open_html(simulation_run_count,  map, time_spent, input_time, all_time);
         }
 
@@ -264,6 +272,6 @@ void update_timekeeper(int input_time, int* all_time) {
 double runtime_end(clock_t begin) {
     clock_t end = clock();
     double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-    printf("\n\nThe runtime for this sim_loop iteration was: %.2lf",time_spent);
+    printf("\nThe runtime for this sim_loop iteration was: %.2lf\n",time_spent);
     return time_spent;
 }
